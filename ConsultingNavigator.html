@@ -1,7 +1,6 @@
 <!-- =========================
      ConsultingNavigator.html
      ========================= -->
-<!-- 作成者：ノジマ　マルエツ稲毛店　駒 諒大 -->
 <!doctype html>
 <html lang="ja">
 <head>
@@ -33,6 +32,10 @@
     .note{
       background:#f6fbff;border:1px solid #d6e8ff;border-radius:12px;padding:10px 12px;
       color:#234; font-size:14px; line-height:1.45;
+    }
+    .alert{
+      background:#fff5f5;border:1px solid #ffd2d2;border-radius:12px;padding:10px 12px;margin-top:10px;
+      color:#b00020;font-size:15px;font-weight:800;
     }
   </style>
 </head>
@@ -81,6 +84,8 @@
         </select>
       </div>
 
+      <div class="alert hidden" id="pointAlert"></div>
+
       <div class="row">
         <button class="btn2" id="backToContractBtn">← 契約ナビに戻る</button>
       </div>
@@ -88,7 +93,7 @@
   </div>
 
 <script>
-const STORAGE_KEY = "contract_navi_ctx_v1";
+const STORAGE_KEY = "contract_navi_ctx_v2_multi";
 const el = (id) => document.getElementById(id);
 
 function readShared(){
@@ -96,11 +101,9 @@ function readShared(){
   if (!raw) return {};
   try { return JSON.parse(raw) || {}; } catch(e){ return {}; }
 }
-function writeShared(patch){
-  const cur = readShared();
-  const next = { ...cur, ...patch };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  return next;
+function writeSharedAll(obj){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+  return obj;
 }
 
 /* 端末が関係する契約かどうか（= payType / データ移行 / 下取りの対象） */
@@ -108,9 +111,51 @@ function needsDeviceFlow(ct){
   return ct === "deviceChange" || ct === "mnpDevice";
 }
 
+/* ★ activeLine / line を安全に取り出す */
+function getActiveLine(shared){
+  const lines = Array.isArray(shared.lines) ? shared.lines : [];
+  const active = Number.isFinite(shared.activeLine) ? shared.activeLine : 0;
+  const idx = Math.max(0, Math.min(active, Math.max(0, lines.length - 1)));
+  const line = lines[idx] || { form:{}, consult:{ payType:"", needDataTransfer:"no", needTradeInReception:"no" }, flow:{} };
+  return { idx, line, lines };
+}
+
+function updatePointAlert(){
+  const box = el("pointAlert");
+  if (!box) return;
+
+  const shared = readShared();
+  const { line } = getActiveLine(shared);
+  const ct = line?.form?.contractType || "";
+  const deviceFlow = needsDeviceFlow(ct);
+
+  // 端末なし（SIMのみ）なら対象外
+  if (!deviceFlow){
+    box.classList.add("hidden");
+    box.textContent = "";
+    return;
+  }
+
+  const payType = (el("payType") ? el("payType").value : "") || (line.consult?.payType || "");
+  const tradeIn = (el("needTradeInReception") ? el("needTradeInReception").value : "no") || (line.consult?.needTradeInReception || "no");
+
+  const isCarrierOrLump = (payType === "carrierInstall" || payType === "lump");
+  const noTradeIn = (tradeIn === "no");
+
+  if (isCarrierOrLump && noTradeIn){
+    box.textContent = "【注意】購入方法が「分リセ以外」かつ「下取りなし」の場合、ポイント付与ができません。下取り受付をご確認ください。";
+    box.classList.remove("hidden");
+  } else {
+    box.classList.add("hidden");
+    box.textContent = "";
+  }
+}
+
 (function init(){
   const shared = readShared();
-  const ct = shared.contractType || "";
+  const { line } = getActiveLine(shared);
+  const ct = line?.form?.contractType || "";
+
   const deviceFlow = needsDeviceFlow(ct);
   const isDeviceChange = (ct === "deviceChange");
 
@@ -124,89 +169,116 @@ function needsDeviceFlow(ct){
   if (el("dataTransferBlock")) el("dataTransferBlock").classList.toggle("hidden", !deviceFlow);
   if (el("tradeInReceptionBlock")) el("tradeInReceptionBlock").classList.toggle("hidden", !deviceFlow);
 
-  // ★ 機種変更は「分リセ」を選べない（端末あり画面のときだけ）
+  // ★ 機種変更は「分リセ」を選べない
   if (deviceFlow && isDeviceChange){
     const opt = el("optNojimaInstall");
     if (opt){
       opt.disabled = true;
       opt.textContent = "分リセ ※機種変更では選択不可";
     }
-
-    // 既に分リセが入ってたら事故防止で解除
-    if ((shared.payType || "") === "nojimaInstall"){
+    // 既に分リセが入ってたら解除
+    if ((line.consult?.payType || shared.payType || "") === "nojimaInstall"){
       if (el("payType")) el("payType").value = "";
-      writeShared({ payType: "" });
+      // storage側も解除しておく
+      const s = readShared();
+      const t = getActiveLine(s);
+      t.line.consult = t.line.consult || {};
+      t.line.consult.payType = "";
+      s.lines[t.idx] = t.line;
+      // 互換トップレベルも念のため
+      s.payType = "";
+      writeSharedAll(s);
     }
   }
 
-  // 初期値復元
-  if (deviceFlow){
-    if (el("payType") && shared.payType) el("payType").value = shared.payType;
+  // 初期値復元（consultは lines 優先、トップレベル互換）
+  const consult = line.consult || {};
+  const payType = consult.payType ?? shared.payType ?? "";
+  const needDataTransfer = consult.needDataTransfer ?? shared.needDataTransfer ?? "no";
+  const needTradeInReception = consult.needTradeInReception ?? shared.needTradeInReception ?? "no";
 
-    if (el("needDataTransfer") && shared.needDataTransfer){
-      el("needDataTransfer").value = shared.needDataTransfer;
-    }
-    if (el("needTradeInReception") && shared.needTradeInReception){
-      el("needTradeInReception").value = shared.needTradeInReception;
-    }
+  if (deviceFlow){
+    if (el("payType")) el("payType").value = payType || "";
+    if (el("needDataTransfer")) el("needDataTransfer").value = needDataTransfer;
+    if (el("needTradeInReception")) el("needTradeInReception").value = needTradeInReception;
   } else {
-    // SIMのみ（端末なし）は常に no に固定して storage も事故防止
+    // SIMのみは固定
     if (el("payType")) el("payType").value = "";
     if (el("needDataTransfer")) el("needDataTransfer").value = "no";
     if (el("needTradeInReception")) el("needTradeInReception").value = "no";
 
-    writeShared({
-      payType: "",
-      needDataTransfer: "no",
-      needTradeInReception: "no"
-    });
+    const s = readShared();
+    const t = getActiveLine(s);
+    t.line.consult = { payType:"", needDataTransfer:"no", needTradeInReception:"no" };
+    s.lines[t.idx] = t.line;
+    s.payType = "";
+    s.needDataTransfer = "no";
+    s.needTradeInReception = "no";
+    writeSharedAll(s);
+    updatePointAlert();
   }
 })();
 
+/* ★ consult の保存は lines[activeLine].consult に書く（トップレベル互換も同時更新） */
+function saveConsultPatch(patch){
+  const s = readShared();
+  const t = getActiveLine(s);
+  t.line.consult = { ...(t.line.consult || {}), ...patch };
+  s.lines = Array.isArray(s.lines) ? s.lines : [];
+  s.lines[t.idx] = t.line;
+
+  // 互換（古い読み方でも動くように）
+  if ("payType" in patch) s.payType = patch.payType;
+  if ("needDataTransfer" in patch) s.needDataTransfer = patch.needDataTransfer;
+  if ("needTradeInReception" in patch) s.needTradeInReception = patch.needTradeInReception;
+
+  writeSharedAll(s);
+}
+
 if (el("payType")){
   el("payType").addEventListener("change", () => {
-    const shared = readShared();
-    const ct = shared.contractType || "";
+    const s = readShared();
+    const t = getActiveLine(s);
+    const ct = (t.line.form && t.line.form.contractType) ? t.line.form.contractType : (s.contractType || "");
 
+    // 機変で分リセ禁止
     if (ct === "deviceChange" && el("payType").value === "nojimaInstall"){
       el("payType").value = "";
-      writeShared({ payType: "" });
+      saveConsultPatch({ payType: "" });
       return;
     }
-    writeShared({ payType: el("payType").value });
+    saveConsultPatch({ payType: el("payType").value });
+    updatePointAlert();
   });
 }
 if (el("needDataTransfer")){
   el("needDataTransfer").addEventListener("change", () => {
-    writeShared({ needDataTransfer: el("needDataTransfer").value });
+    saveConsultPatch({ needDataTransfer: el("needDataTransfer").value });
   });
 }
 if (el("needTradeInReception")){
   el("needTradeInReception").addEventListener("change", () => {
-    writeShared({ needTradeInReception: el("needTradeInReception").value });
+    saveConsultPatch({ needTradeInReception: el("needTradeInReception").value });
+    updatePointAlert();
   });
 }
 
 // 戻るボタン：押した瞬間に保存して戻る
 if (el("backToContractBtn")){
   el("backToContractBtn").onclick = () => {
-    const shared = readShared();
-    const ct = shared.contractType || "";
+    const s = readShared();
+    const t = getActiveLine(s);
+    const ct = (t.line.form && t.line.form.contractType) ? t.line.form.contractType : (s.contractType || "");
     const deviceFlow = needsDeviceFlow(ct);
 
     if (deviceFlow){
-      if (el("payType") && !el("payTypeBlock").classList.contains("hidden")){
-        writeShared({ payType: el("payType").value });
-      }
-      if (el("needDataTransfer")) writeShared({ needDataTransfer: el("needDataTransfer").value });
-      if (el("needTradeInReception")) writeShared({ needTradeInReception: el("needTradeInReception").value });
-    } else {
-      // SIMのみ（端末なし）は固定
-      writeShared({
-        payType: "",
-        needDataTransfer: "no",
-        needTradeInReception: "no"
+      saveConsultPatch({
+        payType: el("payType") ? el("payType").value : "",
+        needDataTransfer: el("needDataTransfer") ? el("needDataTransfer").value : "no",
+        needTradeInReception: el("needTradeInReception") ? el("needTradeInReception").value : "no"
       });
+    } else {
+      saveConsultPatch({ payType:"", needDataTransfer:"no", needTradeInReception:"no" });
     }
 
     window.location.href = "ContractNavigator.html";
