@@ -67,7 +67,7 @@
 
       <div class="divider"></div>
 
-      <!-- 端末ありのときだけ表示（SIMのみは弾く） -->
+      <!-- 端末ありのときだけ表示 -->
       <div id="dataTransferBlock">
         <label>データ移行の有無</label>
         <select id="needDataTransfer">
@@ -105,13 +105,14 @@ function writeSharedAll(obj){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
   return obj;
 }
-
-/* 端末が関係する契約かどうか（= payType / データ移行 / 下取りの対象） */
 function needsDeviceFlow(ct){
-  return ct === "deviceChange" || ct === "mnpDevice";
+  return ct === "deviceChange" || ct === "mnpDevice" || ct === "new";
 }
 
-/* ★ activeLine / line を安全に取り出す */
+function isNoDeviceLike(ct){
+  return ct === "mnpSim" || ct === "new";
+}
+
 function getActiveLine(shared){
   const lines = Array.isArray(shared.lines) ? shared.lines : [];
   const active = Number.isFinite(shared.activeLine) ? shared.activeLine : 0;
@@ -129,7 +130,6 @@ function updatePointAlert(){
   const ct = line?.form?.contractType || "";
   const deviceFlow = needsDeviceFlow(ct);
 
-  // 端末なし（SIMのみ）なら対象外
   if (!deviceFlow){
     box.classList.add("hidden");
     box.textContent = "";
@@ -157,41 +157,50 @@ function updatePointAlert(){
   const ct = line?.form?.contractType || "";
 
   const deviceFlow = needsDeviceFlow(ct);
-  const isDeviceChange = (ct === "deviceChange");
+  const noDeviceLike = isNoDeviceLike(ct);
 
-  // payType：端末ありだけ表示
-  if (el("payTypeBlock")) el("payTypeBlock").classList.toggle("hidden", !deviceFlow);
+  const isDeviceChange = (ct === "deviceChange" || ct === "new");
 
-  // SIMのみ（端末なし）メモ
-  if (el("simOnlyNote")) el("simOnlyNote").classList.toggle("hidden", deviceFlow);
+  if (el("payTypeBlock")) el("payTypeBlock").classList.toggle("hidden", !deviceFlow || noDeviceLike);
+  if (el("simOnlyNote")) el("simOnlyNote").classList.toggle("hidden", !noDeviceLike);
 
-  // データ移行 / 下取り：端末ありだけ表示
-  if (el("dataTransferBlock")) el("dataTransferBlock").classList.toggle("hidden", !deviceFlow);
-  if (el("tradeInReceptionBlock")) el("tradeInReceptionBlock").classList.toggle("hidden", !deviceFlow);
+  // データ移行 / 下取り：端末ありだけ
+  if (el("dataTransferBlock")) el("dataTransferBlock").classList.toggle("hidden", !deviceFlow || noDeviceLike);
+  if (el("tradeInReceptionBlock")) el("tradeInReceptionBlock").classList.toggle("hidden", !deviceFlow || noDeviceLike);
 
-  // ★ 機種変更は「分リセ」を選べない
-  if (deviceFlow && isDeviceChange){
-    const opt = el("optNojimaInstall");
-    if (opt){
-      opt.disabled = true;
-      opt.textContent = "分リセ ※機種変更では選択不可";
+  if (noDeviceLike){
+    if (el("payType")) el("payType").value = "";
+    if (el("needDataTransfer")) el("needDataTransfer").value = "no";
+    if (el("needTradeInReception")) el("needTradeInReception").value = "no";
+
+    const s = readShared();
+    const t = getActiveLine(s);
+    t.line.consult = { ...(t.line.consult || {}), payType:"", needDataTransfer:"no", needTradeInReception:"no" };
+    s.lines[t.idx] = t.line;
+    s.payType = "";
+    s.needDataTransfer = "no";
+    s.needTradeInReception = "no";
+    writeSharedAll(s);
     }
-    // 既に分リセが入ってたら解除
-    if ((line.consult?.payType || shared.payType || "") === "nojimaInstall"){
-      if (el("payType")) el("payType").value = "";
-      // storage側も解除しておく
-      const s = readShared();
-      const t = getActiveLine(s);
-      t.line.consult = t.line.consult || {};
-      t.line.consult.payType = "";
-      s.lines[t.idx] = t.line;
-      // 互換トップレベルも念のため
-      s.payType = "";
-      writeSharedAll(s);
-    }
-  }
 
-  // 初期値復元（consultは lines 優先、トップレベル互換）
+    if (deviceFlow && isDeviceChange){
+      const opt = el("optNojimaInstall");
+      if (opt){
+        opt.disabled = true;
+        opt.textContent = "分リセ ※選択不可";
+      }
+      if ((line.consult?.payType || shared.payType || "") === "nojimaInstall"){
+        if (el("payType")) el("payType").value = "";
+        const s = readShared();
+        const t = getActiveLine(s);
+        t.line.consult = t.line.consult || {};
+        t.line.consult.payType = "";
+        s.lines[t.idx] = t.line;
+        s.payType = "";
+        writeSharedAll(s);
+      }
+    }
+
   const consult = line.consult || {};
   const payType = consult.payType ?? shared.payType ?? "";
   const needDataTransfer = consult.needDataTransfer ?? shared.needDataTransfer ?? "no";
@@ -202,7 +211,6 @@ function updatePointAlert(){
     if (el("needDataTransfer")) el("needDataTransfer").value = needDataTransfer;
     if (el("needTradeInReception")) el("needTradeInReception").value = needTradeInReception;
   } else {
-    // SIMのみは固定
     if (el("payType")) el("payType").value = "";
     if (el("needDataTransfer")) el("needDataTransfer").value = "no";
     if (el("needTradeInReception")) el("needTradeInReception").value = "no";
@@ -219,7 +227,6 @@ function updatePointAlert(){
   }
 })();
 
-/* ★ consult の保存は lines[activeLine].consult に書く（トップレベル互換も同時更新） */
 function saveConsultPatch(patch){
   const s = readShared();
   const t = getActiveLine(s);
@@ -227,7 +234,6 @@ function saveConsultPatch(patch){
   s.lines = Array.isArray(s.lines) ? s.lines : [];
   s.lines[t.idx] = t.line;
 
-  // 互換（古い読み方でも動くように）
   if ("payType" in patch) s.payType = patch.payType;
   if ("needDataTransfer" in patch) s.needDataTransfer = patch.needDataTransfer;
   if ("needTradeInReception" in patch) s.needTradeInReception = patch.needTradeInReception;
@@ -241,7 +247,6 @@ if (el("payType")){
     const t = getActiveLine(s);
     const ct = (t.line.form && t.line.form.contractType) ? t.line.form.contractType : (s.contractType || "");
 
-    // 機変で分リセ禁止
     if (ct === "deviceChange" && el("payType").value === "nojimaInstall"){
       el("payType").value = "";
       saveConsultPatch({ payType: "" });
@@ -263,7 +268,7 @@ if (el("needTradeInReception")){
   });
 }
 
-// 戻るボタン：押した瞬間に保存して戻る
+// 戻るボタン：押した瞬間に保存
 if (el("backToContractBtn")){
   el("backToContractBtn").onclick = () => {
     const s = readShared();
