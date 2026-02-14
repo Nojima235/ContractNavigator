@@ -1,0 +1,1219 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>キャリアパレット</title>
+  <style>
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;
+      margin:0;background:#f6f7f9;color:#111;font-size:16px;
+    }
+    body[data-mode="single"] .grid2{ grid-template-columns: 1fr; }
+    body[data-mode="single"] .resultGrid{ grid-template-columns: 1fr; }
+
+    .wrap{max-width:980px;margin:0 auto;padding:12px;}
+    .card{background:#fff;border:1px solid #e6e8eb;border-radius:14px;padding:12px;}
+    .divider{height:1px;background:#eef0f3;margin:10px 0;}
+    label{font-size:13px;color:#333;font-weight:900;}
+    select,input{
+      width:100%;padding:10px 10px;border-radius:10px;border:1px solid #d9dde3;
+      font-size:15px;background:#fff;
+    }
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .row.tight{gap:8px}
+    .btn2{
+      border:1px solid #d9dde3;background:#fff;color:#111;border-radius:12px;
+      padding:12px 14px;font-size:15px;cursor:pointer;
+    }
+    .hidden{display:none !important;}
+    .note{
+      background:#f6fbff;border:1px solid #d6e8ff;border-radius:12px;padding:10px 10px;
+      color:#234; font-size:13px; line-height:1.4;
+    }
+    .alert{
+      background:#fff5f5;border:1px solid #ffd2d2;border-radius:12px;padding:10px 10px;
+      color:#b00020;font-size:14px;font-weight:1000;
+    }
+
+    .grid2{display:grid;gap:10px;grid-template-columns:1fr 1fr;}
+    @media (max-width: 760px){ .grid2{grid-template-columns:1fr;} }
+
+    .grid3{
+      display:grid;
+      gap:10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items:end;
+    }
+    @media (max-width: 900px){
+      .grid3{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 600px){
+      .grid3{ grid-template-columns: 1fr; }
+    }
+    .grid3 select, .grid3 input{
+      padding:8px 10px;
+      font-size:14px;
+      border-radius:10px;
+    }
+
+    .sectionTitle{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      margin-top:2px;
+    }
+    .sectionTitle b{font-size:14px;}
+    .mini{font-size:12px;color:#555;line-height:1.35;margin-top:6px;}
+
+    .pillRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+    .pill{
+      border:1px solid #d9dde3;background:#fff;border-radius:999px;
+      padding:8px 12px;font-size:13px;font-weight:900;cursor:pointer;user-select:none;
+    }
+    .pill.on{background:#111;color:#fff;border-color:#111;}
+    .pill.gray{background:#f3f4f6;border-color:#e5e7eb;color:#111;font-weight:800;}
+    .pill.warn{background:#fff5f5;border-color:#ffd2d2;color:#b00020;}
+
+    .pill.disc{
+      border-color:#b7e4c7;
+      background:#f3fff7;
+      color:#0f5132;
+    }
+    .pill.disc.on{
+      background:#198754;
+      border-color:#198754;
+      color:#fff;
+    }
+
+    .resultGrid{display:grid;gap:10px;grid-template-columns:1fr 1fr;}
+    @media (max-width: 760px){ .resultGrid{grid-template-columns:1fr;} }
+
+    .resultCard{
+      border:1px solid #e6e8eb;border-radius:14px;padding:10px 10px;background:#fff;
+    }
+    .resultTop{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    .brand{font-size:14px;font-weight:1000;}
+    .price{font-size:28px;font-weight:1100;letter-spacing:0.02em;margin-top:6px;}
+
+    .delta{
+      text-align:center;border-radius:14px;border:1px dashed #cbd5e1;background:#f8fafc;padding:10px;margin-top:10px;
+    }
+    .delta b{font-size:16px;}
+
+    .breakdown{
+      margin-top:6px;font-size:12px;
+      padding:8px 10px;
+      border-radius:12px;
+      background:#f8fafc;
+      border:1px solid #e6e8eb;
+      color:#333;line-height:1.45;
+    }
+    .breakdown .k{color:#555;}
+    .breakdown .line{display:flex;justify-content:space-between;gap:10px;}
+    .breakdown .line + .line{margin-top:4px;}
+
+    details.compact{
+      border:1px solid #eef0f3;
+      border-radius:12px;
+      padding:8px 10px;
+      margin-top:10px;
+      background:#fafafa;
+    }
+    details.compact summary{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      cursor:pointer;
+      font-weight:1000;
+      font-size:13px;
+    }
+    .badgeMini{
+      font-size:11px;
+      font-weight:900;
+      border:1px solid #e6e8eb;
+      background:#fff;
+      border-radius:999px;
+      padding:4px 8px;
+      color:#555;
+      flex:0 0 auto;
+      white-space:nowrap;
+    }
+
+    .carrierGrid{
+      display:grid;
+      gap:10px;
+      grid-template-columns: 1fr;
+    }
+    .carrierGrid.compare{
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (max-width: 760px){
+      .carrierGrid.compare{ grid-template-columns: 1fr; }
+    }
+
+    .carrierList{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:8px;
+    }
+    @media (max-width: 760px){
+      .carrierList{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .carrierCard{
+      padding:8px;
+      border:1px solid #e6e8eb;
+      border-radius:12px;
+      background:#fff;
+      cursor:pointer;
+      user-select:none;
+      position:relative;
+    }
+    .carrierCard.on{
+      border-color:#111;
+      background:#d8dff8;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+    .carrierHeroImg{
+      width:100%;
+      height:96px;
+      border-radius:10px;
+      object-fit:cover;
+      display:block;
+      border:1px solid #e6e8eb;
+      background:#f3f4f6;
+    }
+
+    .carrierCard:not(.on) .carrierHeroImg{
+      filter: grayscale(100%);
+      opacity: 0.55;
+    }
+    .carrierCard:not(.on)::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:12px;
+      background: rgba(220,220,220,0.35);
+      pointer-events:none;
+    }
+    .carrierCard:not(.on) .carrierCompareImg{
+      filter: grayscale(100%);
+      opacity: 0.55;
+    }
+    .carrierCard.on::after{ display:none; }
+
+    .carrierGrid.compare .carrierCard{
+      aspect-ratio: 1 / 1;
+      padding: 8px;
+      display: grid;
+      place-items: center;
+    }
+    .carrierGrid.compare .carrierCompareImg{
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .carrierGrid:not(.compare) .carrierCompareImg{ display:none; }
+    .carrierGrid.compare .carrierHeroImg{ display:none; }
+
+    #recPills{ display:none !important; }
+
+    /* ===== one-button toggle ===== */
+    .modeSwitch{
+      display:flex; align-items:center; gap:10px;
+      user-select:none;
+      padding:10px 12px;
+      border:1px solid #d9dde3;
+      border-radius:14px;
+      background:#fff;
+      cursor:pointer;
+    }
+    .modeLabel{
+      font-size:13px;
+      font-weight:1000;
+      color:#555;
+    }
+    body[data-mode="single"] #modeLabelLeft,
+    body[data-mode="compare"] #modeLabelRight{
+      color:#111;
+    }
+    .modeTrack{
+      width:46px; height:26px;
+      border-radius:999px;
+      background:#e9ecef;
+      position:relative;
+      flex:0 0 auto;
+      border:1px solid #d9dde3;
+    }
+    .modeThumb{
+      width:22px; height:22px;
+      border-radius:999px;
+      background:#16a34a;
+      position:absolute;
+      top:1px; left:1px;
+      transition: transform 160ms ease;
+    }
+    body[data-mode="compare"] .modeThumb{
+      transform: translateX(20px);
+    }
+    body[data-mode="compare"] .modeTrack{
+      background:#dcfce7;
+      border-color:#86efac;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="row" style="justify-content:space-between; gap:10px;">
+        <div>
+          <h1 style="font-size:22px; margin:0;">キャリアパレット</h1>
+          <div style="font-size:12px; color:#555; font-weight:900; margin-top:2px;">料金比較・見積り</div>
+        </div>
+        <div class="modeSwitch" id="modeToggle" role="button" aria-label="表示モード切替" tabindex="0">
+          <span class="modeLabel" id="modeLabelLeft">単体</span>
+          <span class="modeTrack" aria-hidden="true">
+            <span class="modeThumb" id="modeThumb"></span>
+          </span>
+          <span class="modeLabel" id="modeLabelRight">比較</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sectionTitle"><b></b></div>
+
+    <div class="carrierGrid" id="carrierGrid">
+      <div class="resultCard">
+        <select id="carrierA" class="hidden">
+          <option value="" selected>未選択</option>
+          <option value="docomo">docomo</option>
+          <option value="ahamo">ahamo</option>
+          <option value="au">au</option>
+          <option value="uq">UQ mobile</option>
+          <option value="softbank">SoftBank</option>
+          <option value="ymobile">Y!mobile</option>
+        </select>
+        <div id="carrierCardsA" class="carrierList"></div>
+      </div>
+
+      <div class="resultCard hidden" id="carrierBBlock">
+        <select id="carrierB" class="hidden">
+          <option value="" selected>未選択</option>
+          <option value="docomo">docomo</option>
+          <option value="ahamo">ahamo</option>
+          <option value="au">au</option>
+          <option value="uq">UQ mobile</option>
+          <option value="softbank">SoftBank</option>
+          <option value="ymobile">Y!mobile</option>
+        </select>
+        <div id="carrierCardsB" class="carrierList"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sectionTitle"><b>オプション / 割引</b></div>
+
+    <div class="grid2" style="margin-top:8px;">
+      <!-- A -->
+      <div class="resultCard">
+        <div class="resultTop">
+          <div class="brand" id="optTitleA">A：—</div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <label>プラン</label>
+          <select id="A_planSelect"></select>
+        </div>
+
+        <div class="divider" style="margin:10px 0;"></div>
+        <div class="mini" style="margin:0;font-weight:1000;">通話 / 付帯オプション</div>
+        <div class="pillRow">
+          <div class="pill" id="A_talk_none">通話なし</div>
+          <div class="pill" id="A_talk_short">短時間かけ放題</div>
+          <div class="pill" id="A_talk_full">24時間かけ放題</div>
+          <div class="pill" id="A_talk_60">月60分</div>
+          <div class="pill" id="A_talk_senior">60歳以上 24時間</div>
+          <div class="pill" id="A_mail">メール持ち運び</div>
+        </div>
+
+        <div class="divider" style="margin:10px 0;"></div>
+        <div class="mini" style="margin:0;font-weight:1000;">割引</div>
+        <div class="pillRow" style="margin-top:6px;">
+          <div class="pill disc" id="A_family">家族割</div>
+          <div class="pill disc" id="A_hikari">光割</div>
+          <div class="pill disc" id="A_aupay">auPAYカード割</div>
+        </div>
+
+        <details class="compact" id="A_customBox">
+          <summary>
+            <span>任意調整</span>
+            <span class="badgeMini" id="A_customBadge">未設定</span>
+          </summary>
+
+          <div class="row tight" style="margin-top:8px;">
+            <input id="A_customDiscountYen" type="number" step="10" style="max-width:180px;" placeholder="例）-1000 / +330">
+            <div style="font-size:13px;color:#555;font-weight:900;">円 / 月</div>
+          </div>
+          <input id="A_customDiscountNote" type="text" placeholder="メモ（任意）" style="margin-top:6px;">
+          <div class="mini">※マイナスは割引、プラスは追加料金扱い</div>
+        </details>
+      </div>
+
+      <!-- B -->
+      <div class="resultCard hidden" id="optBlockB">
+        <div class="resultTop">
+          <div class="brand" id="optTitleB">B：—</div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <label>プラン</label>
+          <select id="B_planSelect"></select>
+        </div>
+
+        <div class="divider" style="margin:10px 0;"></div>
+        <div class="mini" style="margin:0;font-weight:1000;">通話 / 付帯オプション</div>
+        <div class="pillRow">
+          <div class="pill" id="B_talk_none">通話なし</div>
+          <div class="pill" id="B_talk_short">短時間かけ放題</div>
+          <div class="pill" id="B_talk_full">24時間かけ放題</div>
+          <div class="pill" id="B_talk_60">月60分</div>
+          <div class="pill" id="B_talk_senior">60歳以上 24時間</div>
+          <div class="pill" id="B_mail">メール持ち運び</div>
+        </div>
+
+        <div class="divider" style="margin:10px 0;"></div>
+        <div class="mini" style="margin:0;font-weight:1000;">割引</div>
+        <div class="pillRow" style="margin-top:6px;">
+          <div class="pill disc" id="B_family">家族割</div>
+          <div class="pill disc" id="B_hikari">光割</div>
+          <div class="pill disc" id="B_aupay">auPAYカード割</div>
+        </div>
+
+        <details class="compact" id="B_customBox">
+          <summary>
+            <span>任意調整</span>
+            <span class="badgeMini" id="B_customBadge">未設定</span>
+          </summary>
+
+          <div class="row tight" style="margin-top:8px;">
+            <input id="B_customDiscountYen" type="number" step="10" style="max-width:180px;" placeholder="例）-1000 / +330">
+            <div style="font-size:13px;color:#555;font-weight:900;">円 / 月</div>
+          </div>
+          <input id="B_customDiscountNote" type="text" placeholder="メモ（任意）" style="margin-top:6px;">
+          <div class="mini">※マイナスは割引、プラスは追加料金扱い</div>
+        </details>
+      </div>
+    </div>
+
+    <!-- 結果 -->
+    <div class="divider"></div>
+    <div class="sectionTitle"><b>月額合計（目安）</b></div>
+
+    <div class="resultGrid" style="margin-top:8px;">
+      <div class="resultCard" id="resultA">
+        <div class="resultTop">
+          <div class="brand" id="brandA">A：未選択</div>
+        </div>
+        <div class="price" id="priceA">—</div>
+        <div class="mini" style="margin-top:8px;font-weight:900;">内訳</div>
+        <div class="breakdown" id="bdA"></div>
+      </div>
+
+      <div class="resultCard hidden" id="resultB">
+        <div class="resultTop">
+          <div class="brand" id="brandB">B：未選択</div>
+        </div>
+        <div class="price" id="priceB">—</div>
+        <div class="mini" style="margin-top:8px;font-weight:900;">内訳</div>
+        <div class="breakdown" id="bdB"></div>
+      </div>
+    </div>
+
+    <div class="delta hidden" id="deltaBox">
+      <div><b id="deltaText">差額：—</b></div>
+    </div>
+
+    <!-- 端末/作業系 -->
+    <div class="divider"></div>
+    <div class="grid3">
+      <div id="payTypeBlock" class="hidden">
+        <label>端末の購入方法</label>
+        <select id="payType">
+          <option value="" selected>未選択</option>
+          <option value="nojimaInstall" id="optNojimaInstall">分リセ</option>
+          <option value="carrierInstall">キャリア分割</option>
+          <option value="lump">一括</option>
+        </select>
+      </div>
+
+      <div id="simOnlyNote" class="hidden">
+        <div class="note">SIMのみのため、データ移行・下取り受付は基本発生しません。</div>
+      </div>
+
+      <div id="dataTransferBlock">
+        <label>データ移行</label>
+        <select id="needDataTransfer">
+          <option value="yes">あり</option>
+          <option value="no" selected>なし</option>
+        </select>
+      </div>
+
+      <div id="tradeInReceptionBlock">
+        <label>下取り受付</label>
+        <select id="needTradeInReception">
+          <option value="yes">あり</option>
+          <option value="no" selected>なし</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="row" style="gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+      <button class="btn2" id="backToContractBtn">契約ナビに戻る</button>
+    </div>
+
+    <div class="alert hidden" id="pointAlert" style="margin-top:10px;"></div>
+    <div class="alert hidden" id="priceDbAlert" style="margin-top:10px;"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+  const STORAGE_KEY = "contract_navi_ctx_v2_multi";
+  const el = (id) => document.getElementById(id);
+
+  const on = (id, ev, fn) => { const x = el(id); if (x) x.addEventListener(ev, fn); };
+  const click = (id, fn) => { const x = el(id); if (x) x.onclick = fn; };
+
+  const CARRIER_ICON = {
+    docomo:   "icons/docomo_H.png",
+    ahamo:    "icons/ahamo_H.png",
+    au:       "icons/au_H.png",
+    uq:       "icons/uq_H.png",
+    softbank: "icons/sb_H.png",
+    ymobile:  "icons/y_H.png",
+  };
+  const CARRIER_COMPARE = {
+    docomo:   "icons/docomo_C.png",
+    ahamo:    "icons/ahamo_C.png",
+    au:       "icons/au_C.png",
+    uq:       "icons/uq_C.png",
+    softbank: "icons/sb_C.png",
+    ymobile:  "icons/y_C.png",
+  };
+  const CARRIER_ORDER = ["docomo","au","softbank","ahamo","uq","ymobile"];
+
+  function carrierLabel(v){
+    return ({
+      docomo:"docomo", ahamo:"ahamo", au:"au", uq:"UQ mobile",
+      softbank:"SoftBank", ymobile:"Y!mobile"
+    })[v] || v || "未選択";
+  }
+
+  function yen(n){
+    if (!Number.isFinite(n)) return "—";
+    return "¥" + Math.round(n).toLocaleString("ja-JP");
+  }
+
+  function readShared(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    try { return JSON.parse(raw) || {}; } catch(e){ return {}; }
+  }
+  function writeSharedAll(obj){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+    return obj;
+  }
+  function needsDeviceFlow(ct){
+    return ct === "deviceChange" || ct === "mnpDevice" || ct === "new";
+  }
+  function getActiveLine(shared){
+    const lines = Array.isArray(shared.lines) ? shared.lines : [];
+    const active = Number.isFinite(shared.activeLine) ? shared.activeLine : 0;
+    const idx = Math.max(0, Math.min(active, Math.max(0, lines.length - 1)));
+    const line = lines[idx] || { form:{}, consult:{} , flow:{} };
+    line.consult = line.consult || {};
+    return { idx, line, lines };
+  }
+  function saveConsultPatch(patch){
+    const s = readShared();
+    const t = getActiveLine(s);
+    t.line.consult = { ...(t.line.consult || {}), ...patch };
+    s.lines = Array.isArray(s.lines) ? s.lines : [];
+    s.lines[t.idx] = t.line;
+    writeSharedAll(s);
+  }
+  function loadCtx(){
+    const s = readShared();
+    const { line } = getActiveLine(s);
+    const form = line.form || {};
+    const consult = line.consult || {};
+    return { s, line, form, consult };
+  }
+
+  function updatePointAlert(){
+    const box = el("pointAlert");
+    if (!box) return;
+
+    const { form, consult } = loadCtx();
+    const ct = form.contractType || "";
+
+    if (ct !== "mnpDevice") {
+      box.classList.add("hidden");
+      box.textContent = "";
+      return;
+    }
+
+    const payType = (el("payType") ? el("payType").value : "") || (consult.payType || "");
+    const tradeIn = (el("needTradeInReception") ? el("needTradeInReception").value : "no") || (consult.needTradeInReception || "no");
+
+    const isCarrierOrLump = (payType === "carrierInstall" || payType === "lump");
+    const noTradeIn = (tradeIn === "no");
+
+    if (isCarrierOrLump && noTradeIn){
+      box.textContent = "【注意】購入方法が「分リセ以外」かつ「下取りなし」の場合、ポイント付与ができません。下取り受付をご確認ください。";
+      box.classList.remove("hidden");
+    } else {
+      box.classList.add("hidden");
+      box.textContent = "";
+    }
+  }
+
+  function getKey(side, name){ return `${side}_${name}`; }
+  function getConsult(consult, side, name, def){
+    const k = getKey(side, name);
+    return (k in consult) ? consult[k] : def;
+  }
+  function setConsultPatch(side, patch){
+    const out = {};
+    Object.keys(patch).forEach(name=>{
+      out[getKey(side,name)] = patch[name];
+    });
+    saveConsultPatch(out);
+  }
+
+  function readMode(){
+    const { consult } = loadCtx();
+    return consult.viewMode === "compare" ? "compare" : "single";
+  }
+  function setMode(mode){
+    saveConsultPatch({ viewMode: (mode === "compare" ? "compare" : "single") });
+  }
+
+  /* ===== UQ: 家族割と光割は併用不可（光割優先） ===== */
+  function enforceUqDiscountRule(side, carrier, consult){
+    if (carrier !== "uq") return;
+    const famOn = !!getConsult(consult, side, "discFamily", false);
+    const hikOn = !!getConsult(consult, side, "discHikari", false);
+    if (famOn && hikOn){
+      setConsultPatch(side, { discFamily:false, discHikari:true });
+    }
+  }
+  function toggleDiscountWithUqRule(side, carrier, kind){
+    const { consult } = loadCtx();
+    const famOn = !!getConsult(consult, side, "discFamily", false);
+    const hikOn = !!getConsult(consult, side, "discHikari", false);
+
+    if (carrier !== "uq"){
+      if (kind === "family") setConsultPatch(side, { discFamily: !famOn });
+      else if (kind === "hikari") setConsultPatch(side, { discHikari: !hikOn });
+      else if (kind === "aupay"){
+        const cur = !!getConsult(consult, side, "discAupay", false);
+        setConsultPatch(side, { discAupay: !cur });
+      }
+      return;
+    }
+
+    if (kind === "hikari"){
+      const next = !hikOn;
+      setConsultPatch(side, { discHikari: next, discFamily: next ? false : famOn });
+    } else if (kind === "family"){
+      if (hikOn){
+        setConsultPatch(side, { discFamily:false, discHikari:true });
+      } else {
+        setConsultPatch(side, { discFamily: !famOn, discHikari:false });
+      }
+    } else if (kind === "aupay"){
+      const cur = !!getConsult(consult, side, "discAupay", false);
+      setConsultPatch(side, { discAupay: !cur });
+    }
+  }
+
+  function renderCarrierCards(side){
+    const host = el(side === "A" ? "carrierCardsA" : "carrierCardsB");
+    if (!host) return;
+
+    const sel = el(side === "A" ? "carrierA" : "carrierB");
+    const current = sel ? sel.value : "";
+    const mode = readMode();
+
+    host.innerHTML = "";
+
+    CARRIER_ORDER.forEach(key=>{
+      const card = document.createElement("div");
+      card.className = "carrierCard" + (current === key ? " on" : "");
+
+      if (mode === "single"){
+        const img = document.createElement("img");
+        img.className = "carrierHeroImg";
+        img.src = CARRIER_ICON[key] || "";
+        img.alt = carrierLabel(key);
+        card.appendChild(img);
+      } else {
+        const img = document.createElement("img");
+        img.className = "carrierCompareImg";
+        img.src = CARRIER_COMPARE[key] || "";
+        img.alt = carrierLabel(key);
+        card.appendChild(img);
+      }
+
+      card.onclick = () => {
+        if (sel) sel.value = key;
+        saveConsultPatch(side === "A" ? { carrierA:key } : { carrierB:key });
+        setConsultPatch(side, { planKey: "" }); // 古いplanKey破棄
+        renderAll();
+      };
+
+      host.appendChild(card);
+    });
+  }
+
+  function pillSet(elm, on){
+    if (!elm) return;
+    elm.classList.toggle("on", !!on);
+  }
+
+  // 「短時間かけ放題」表示（キャリアで 5/10 を出し分け）
+  function shortTalkLabel(carrier, planKey){
+    // ahamo / docomo は 5分
+    if (carrier === "docomo" || carrier === "ahamo") return "5分かけ放題";
+
+    // UQ：コミコミは 10分付帯だが、表示は同じでOK
+    if (carrier === "uq") return "10分かけ放題";
+
+    // ymobile/sb/au は 10分想定
+    return "10分かけ放題";
+  }
+
+  function updateCustomBadge(side, consult){
+    const v = Number(getConsult(consult, side, "customDiscountYen", 0) || 0) || 0;
+    const note = (getConsult(consult, side, "customDiscountNote", "") || "").trim();
+    const badge = el(side + "_customBadge");
+    if (!badge) return;
+
+    if (v === 0 && !note){
+      badge.textContent = "未設定";
+    } else {
+      const vv = (v > 0 ? "+" : "") + Math.round(v) + "円";
+      badge.textContent = vv + (note ? " / メモ" : "");
+    }
+  }
+
+  function renderBreakdown(targetId, lines){
+    const box = el(targetId);
+    if (!box) return;
+    box.innerHTML = "";
+    (lines || []).forEach(it => {
+      const row = document.createElement("div");
+      row.className = "line";
+      const k = document.createElement("div");
+      k.className = "k";
+      k.textContent = it.k;
+      const v = document.createElement("div");
+      v.textContent = yen(it.v);
+      row.appendChild(k); row.appendChild(v);
+      box.appendChild(row);
+    });
+  }
+
+  function showPriceDbAlert(msg){
+    const box = el("priceDbAlert");
+    if (!box) return;
+    if (!msg){
+      box.classList.add("hidden");
+      box.textContent = "";
+      return;
+    }
+    box.textContent = msg;
+    box.classList.remove("hidden");
+  }
+
+  function syncPlanSelect(side, carrier, form, consult){
+    const sel = el(side + "_planSelect");
+    if (!sel) return;
+
+    if (!window.PRICE_DB){
+      sel.innerHTML = "<option value=''>data.js（PRICE_DB）が読み込めていません</option>";
+      sel.disabled = true;
+      showPriceDbAlert("【エラー】data.js が読み込めていないか、PRICE_DB が未定義です。ファイル名・パス・読み込み順を確認してください。");
+      return;
+    } else {
+      showPriceDbAlert("");
+    }
+
+    const c = window.PRICE_DB.getCarrier ? window.PRICE_DB.getCarrier(carrier) : null;
+    sel.innerHTML = "";
+
+    if (!carrier || !c || !c.plans){
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "キャリアを選択してください";
+      sel.appendChild(opt);
+      sel.disabled = true;
+      return;
+    }
+    sel.disabled = false;
+
+    const savedKey = getConsult(consult, side, "planKey", "");
+    const fallback = window.PRICE_DB.getDefaultPlanKey ? window.PRICE_DB.getDefaultPlanKey(carrier, form.dataUsage || "lte30") : "";
+    const currentKey =
+      (savedKey && c.plans[savedKey]) ? savedKey :
+      (fallback && c.plans[fallback]) ? fallback : "";
+
+    Object.keys(c.plans).forEach(k=>{
+      const p = c.plans[k];
+      const opt = document.createElement("option");
+      opt.value = k;
+      opt.textContent = p.label;
+      sel.appendChild(opt);
+    });
+
+    sel.value = currentKey || Object.keys(c.plans)[0] || "";
+    setConsultPatch(side, { planKey: sel.value });
+  }
+
+  function applyDiscountEligibilityUI(side, carrier, consult){
+    if (!window.PRICE_DB) return;
+
+    const planKey = getConsult(consult, side, "planKey", "");
+    const famBtn = el(side + "_family");
+    const hikBtn = el(side + "_hikari");
+    const apyBtn = el(side + "_aupay");
+
+    // UQコミコミは割引なし → pillを隠す（トクトクは表示）
+    const uqNoDiscount = (carrier === "uq" && planKey === "komikomi_value");
+
+    const applyOne = (btn, kind, stateKey) => {
+      if (!btn) return;
+
+      // ahamoは割引なし（従来通り隠す）
+      if (carrier === "ahamo"){
+        btn.classList.add("hidden");
+        if (getConsult(consult, side, stateKey, false)) setConsultPatch(side, { [stateKey]: false });
+        return;
+      }
+
+      if (uqNoDiscount){
+        btn.classList.add("hidden");
+        if (getConsult(consult, side, stateKey, false)) setConsultPatch(side, { [stateKey]: false });
+        return;
+      }
+
+      const ok = window.PRICE_DB.isDiscountEligible ? window.PRICE_DB.isDiscountEligible(carrier, kind, planKey) : true;
+      btn.classList.toggle("hidden", !ok);
+      if (!ok && getConsult(consult, side, stateKey, false)){
+        setConsultPatch(side, { [stateKey]: false });
+      }
+    };
+
+    applyOne(famBtn, "family", "discFamily");
+    applyOne(hikBtn, "hikari", "discHikari");
+    applyOne(apyBtn, "aupay",  "discAupay");
+  }
+
+  function calcMonthly(carrier, form, consult, side){
+    if (!carrier) return { total: NaN, lines: [] };
+    if (!window.PRICE_DB) return { total: NaN, lines: [] };
+
+    const dataUsage = form.dataUsage || "lte30";
+
+    const chosenKey = getConsult(consult, side, "planKey", "");
+    const fallbackKey = window.PRICE_DB.getDefaultPlanKey ? window.PRICE_DB.getDefaultPlanKey(carrier, dataUsage) : "";
+    const planKey = chosenKey || fallbackKey;
+
+    const plan = window.PRICE_DB.getPlan ? window.PRICE_DB.getPlan(carrier, planKey) : null;
+    const base = plan ? plan.price : 0;
+
+    // ---- voice (single select) ----
+    const talk = getConsult(consult, side, "optTalk", "none"); // none | short | full | senior | min60
+    let talkYen = 0;
+
+    const includesCallShort = !!(plan && plan.includes && plan.includes.callShort);
+
+    if (talk === "short"){
+      if (!includesCallShort){
+        const v = window.PRICE_DB.getVoice ? window.PRICE_DB.getVoice(carrier, "short") : null;
+        talkYen = v ? v.price : 0;
+      }
+    } else if (talk === "full"){
+      const v = window.PRICE_DB.getVoice ? window.PRICE_DB.getVoice(carrier, "unlimited") : null;
+      talkYen = v ? v.price : 0;
+    } else if (talk === "senior"){
+      const v = window.PRICE_DB.getVoice ? window.PRICE_DB.getVoice(carrier, "senior") : null;
+      talkYen = v ? v.price : 0;
+    } else if (talk === "min60"){
+      const v = window.PRICE_DB.getVoice ? window.PRICE_DB.getVoice(carrier, "min60") : null;
+      talkYen = v ? v.price : 0;
+    }
+
+    // ---- discounts (eligibility) ----
+    let family = 0;
+    if (getConsult(consult, side, "discFamily", false) &&
+        window.PRICE_DB.isDiscountEligible && window.PRICE_DB.isDiscountEligible(carrier, "family", planKey)){
+      const d = window.PRICE_DB.getDiscount ? window.PRICE_DB.getDiscount(carrier, "family") : null;
+      family = d ? d.amount : 0;
+    }
+
+    let hikari = 0;
+    if (getConsult(consult, side, "discHikari", false) &&
+        window.PRICE_DB.isDiscountEligible && window.PRICE_DB.isDiscountEligible(carrier, "hikari", planKey)){
+      const d = window.PRICE_DB.getDiscount ? window.PRICE_DB.getDiscount(carrier, "hikari") : null;
+      hikari = d ? d.amount : 0;
+    }
+
+    let aupay = 0;
+    if (getConsult(consult, side, "discAupay", false) &&
+        window.PRICE_DB.isDiscountEligible && window.PRICE_DB.isDiscountEligible(carrier, "aupay", planKey)){
+      const d = window.PRICE_DB.getDiscount ? window.PRICE_DB.getDiscount(carrier, "aupay") : null;
+      aupay = d ? d.amount : 0;
+    }
+
+    // mail carry
+    const mailOn = !!getConsult(consult, side, "optMailCarry", false);
+    const mail = mailOn ? (window.PRICE_DB.getMailCarry ? (window.PRICE_DB.getMailCarry(carrier)?.price || 0) : 0) : 0;
+
+    // custom (±)
+    const custom = Number(getConsult(consult, side, "customDiscountYen", 0) || 0) || 0;
+
+    const total = base + talkYen + mail + family + hikari + aupay + custom;
+
+    const lines = [];
+    lines.push({ k:"プラン", v: base });
+
+    if (talkYen !== 0)  lines.push({ k:"通話OP", v: talkYen });
+    if (mail !== 0)     lines.push({ k:"メール", v: mail });
+    if (family !== 0)   lines.push({ k:"家族割", v: family });
+    if (hikari !== 0)   lines.push({ k:"光割", v: hikari });
+    if (aupay !== 0)    lines.push({ k:"auPAYカード割", v: aupay });
+    if (custom !== 0)   lines.push({ k:"任意調整", v: custom });
+
+    return { total, lines, planKey };
+  }
+
+  function renderAll(){
+    const { form, consult } = loadCtx();
+
+    const deviceFlow = needsDeviceFlow(form.contractType || "");
+    const simOnly = (form.contractType === "mnpSim");
+    const isNew = (form.contractType === "new");
+
+    el("payTypeBlock")?.classList.toggle("hidden", !deviceFlow || simOnly);
+    el("simOnlyNote")?.classList.toggle("hidden", !simOnly);
+
+    const hideDT = (!deviceFlow || simOnly || isNew);
+    el("dataTransferBlock")?.classList.toggle("hidden", hideDT);
+    el("tradeInReceptionBlock")?.classList.toggle("hidden", hideDT);
+
+    const banNojima = (form.contractType === "deviceChange" || form.contractType === "new");
+    const optNoj = el("optNojimaInstall");
+    if (optNoj){
+      optNoj.disabled = banNojima;
+      optNoj.textContent = banNojima ? "分リセ ※選択不可" : "分リセ";
+    }
+    if (banNojima && el("payType") && el("payType").value === "nojimaInstall"){
+      el("payType").value = "";
+      saveConsultPatch({ payType:"" });
+    }
+
+    updatePointAlert();
+
+    const mode = readMode();
+    el("carrierGrid")?.classList.toggle("compare", mode === "compare");
+    document.body.dataset.mode = mode;
+
+    el("carrierBBlock")?.classList.toggle("hidden", mode !== "compare");
+    el("optBlockB")?.classList.toggle("hidden", mode !== "compare");
+    el("resultB")?.classList.toggle("hidden", mode !== "compare");
+    el("deltaBox")?.classList.toggle("hidden", mode !== "compare");
+
+    if (el("carrierA")) el("carrierA").value = consult.carrierA || "";
+    if (el("carrierB")) el("carrierB").value = consult.carrierB || "";
+
+    const a = el("carrierA")?.value || "";
+    const b = el("carrierB")?.value || "";
+
+    // ahamoは最初から「5分」が選択されていてほしい（通話なしは表示しない）
+    const enforceAhamo = (side, carrier) => {
+      if (carrier !== "ahamo") return;
+      if (getConsult(consult, side, "optTalk", "none") !== "short"){
+        setConsultPatch(side, { optTalk: "short" });
+      }
+    };
+    enforceAhamo("A", a);
+    enforceAhamo("B", b);
+
+    el("optTitleA") && (el("optTitleA").textContent = carrierLabel(a));
+    el("optTitleB") && (el("optTitleB").textContent = carrierLabel(b));
+
+    syncPlanSelect("A", a, form, consult);
+    syncPlanSelect("B", b, form, consult);
+
+    // UQ割引の併用不可整合（光割優先）
+    enforceUqDiscountRule("A", a, consult);
+    enforceUqDiscountRule("B", b, consult);
+
+    // 割引可否UI（UQコミコミは割引自体を隠す）
+    applyDiscountEligibilityUI("A", a, consult);
+    applyDiscountEligibilityUI("B", b, consult);
+
+    const aPlanKey = getConsult(consult, "A", "planKey", "");
+    const bPlanKey = getConsult(consult, "B", "planKey", "");
+
+    // 短時間表示
+    el("A_talk_short") && (el("A_talk_short").textContent = shortTalkLabel(a, aPlanKey));
+    el("B_talk_short") && (el("B_talk_short").textContent = shortTalkLabel(b, bPlanKey));
+
+    // ahamoは「通話なし」非表示
+    el("A_talk_none") && el("A_talk_none").classList.toggle("hidden", a === "ahamo");
+    el("B_talk_none") && el("B_talk_none").classList.toggle("hidden", b === "ahamo");
+
+    // UQの月60分 / 60歳以上 を“定義があるときだけ”出す
+    const hasVoice = (carrier, kind) => !!(window.PRICE_DB && window.PRICE_DB.getVoice && window.PRICE_DB.getVoice(carrier, kind));
+    el("A_talk_60") && el("A_talk_60").classList.toggle("hidden", !hasVoice(a, "min60"));
+    el("B_talk_60") && el("B_talk_60").classList.toggle("hidden", !hasVoice(b, "min60"));
+    el("A_talk_senior") && el("A_talk_senior").classList.toggle("hidden", !hasVoice(a, "senior"));
+    el("B_talk_senior") && el("B_talk_senior").classList.toggle("hidden", !hasVoice(b, "senior"));
+
+    // 状態反映
+    const A_talk = getConsult(consult,"A","optTalk","none");
+    pillSet(el("A_talk_none"),   A_talk === "none");
+    pillSet(el("A_talk_short"),  A_talk === "short");
+    pillSet(el("A_talk_full"),   A_talk === "full");
+    pillSet(el("A_talk_60"),     A_talk === "min60");
+    pillSet(el("A_talk_senior"), A_talk === "senior");
+
+    const B_talk = getConsult(consult,"B","optTalk","none");
+    pillSet(el("B_talk_none"),   B_talk === "none");
+    pillSet(el("B_talk_short"),  B_talk === "short");
+    pillSet(el("B_talk_full"),   B_talk === "full");
+    pillSet(el("B_talk_60"),     B_talk === "min60");
+    pillSet(el("B_talk_senior"), B_talk === "senior");
+
+    pillSet(el("A_mail"),   !!getConsult(consult,"A","optMailCarry",false));
+    pillSet(el("A_family"), !!getConsult(consult,"A","discFamily",false));
+    pillSet(el("A_hikari"), !!getConsult(consult,"A","discHikari",false));
+    pillSet(el("A_aupay"),  !!getConsult(consult,"A","discAupay",false));
+
+    pillSet(el("B_mail"),   !!getConsult(consult,"B","optMailCarry",false));
+    pillSet(el("B_family"), !!getConsult(consult,"B","discFamily",false));
+    pillSet(el("B_hikari"), !!getConsult(consult,"B","discHikari",false));
+    pillSet(el("B_aupay"),  !!getConsult(consult,"B","discAupay",false));
+
+    if (el("A_customDiscountYen")) el("A_customDiscountYen").value = String(Number(getConsult(consult,"A","customDiscountYen",0) || 0) || 0);
+    if (el("A_customDiscountNote")) el("A_customDiscountNote").value = getConsult(consult,"A","customDiscountNote","") || "";
+    if (el("B_customDiscountYen")) el("B_customDiscountYen").value = String(Number(getConsult(consult,"B","customDiscountYen",0) || 0) || 0);
+    if (el("B_customDiscountNote")) el("B_customDiscountNote").value = getConsult(consult,"B","customDiscountNote","") || "";
+
+    updateCustomBadge("A", consult);
+    updateCustomBadge("B", consult);
+
+    el("brandA") && (el("brandA").textContent = carrierLabel(a));
+    el("brandB") && (el("brandB").textContent = carrierLabel(b));
+
+    const rA = calcMonthly(a, form, consult, "A");
+    const rB = calcMonthly(b, form, consult, "B");
+
+    el("priceA") && (el("priceA").textContent = yen(rA.total));
+    renderBreakdown("bdA", rA.lines || []);
+
+    el("priceB") && (el("priceB").textContent = yen(rB.total));
+    renderBreakdown("bdB", rB.lines || []);
+
+    if (mode === "compare" && a && b && Number.isFinite(rA.total) && Number.isFinite(rB.total)){
+      const d = rA.total - rB.total;
+      const abs = Math.abs(d);
+      el("deltaText") && (el("deltaText").textContent = `差額：${yen(abs)}`);
+    } else {
+      el("deltaText") && (el("deltaText").textContent = "差額：—");
+    }
+
+    renderCarrierCards("A");
+    if (readMode() === "compare") renderCarrierCards("B");
+  }
+
+  function bind(){
+    const toggleMode = () => {
+      const mode = readMode();
+      setMode(mode === "single" ? "compare" : "single");
+      renderAll();
+    };
+    click("modeToggle", toggleMode);
+    on("modeToggle","keydown",(e)=>{
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleMode(); }
+    });
+
+    on("carrierA", "change", ()=>{
+      saveConsultPatch({ carrierA: el("carrierA")?.value || "" });
+      setConsultPatch("A", { planKey: "" });
+      renderAll();
+    });
+    on("carrierB", "change", ()=>{
+      saveConsultPatch({ carrierB: el("carrierB")?.value || "" });
+      setConsultPatch("B", { planKey: "" });
+      renderAll();
+    });
+
+    on("A_planSelect", "change", ()=>{
+      setConsultPatch("A", { planKey: el("A_planSelect")?.value || "" });
+      renderAll();
+    });
+    on("B_planSelect", "change", ()=>{
+      setConsultPatch("B", { planKey: el("B_planSelect")?.value || "" });
+      renderAll();
+    });
+
+    const setTalk = (side, v) => { setConsultPatch(side, { optTalk: v }); renderAll(); };
+
+    click("A_talk_none",   () => setTalk("A","none"));
+    click("A_talk_short",  () => setTalk("A","short"));
+    click("A_talk_full",   () => setTalk("A","full"));
+    click("A_talk_60",     () => setTalk("A","min60"));
+    click("A_talk_senior", () => setTalk("A","senior"));
+
+    click("B_talk_none",   () => setTalk("B","none"));
+    click("B_talk_short",  () => setTalk("B","short"));
+    click("B_talk_full",   () => setTalk("B","full"));
+    click("B_talk_60",     () => setTalk("B","min60"));
+    click("B_talk_senior", () => setTalk("B","senior"));
+
+    click("A_mail", () => {
+      const { consult } = loadCtx();
+      setConsultPatch("A", { optMailCarry: !getConsult(consult,"A","optMailCarry",false) });
+      renderAll();
+    });
+    click("B_mail", () => {
+      const { consult } = loadCtx();
+      setConsultPatch("B", { optMailCarry: !getConsult(consult,"B","optMailCarry",false) });
+      renderAll();
+    });
+
+    // discounts（UQは光割優先ルール＋auPAY追加）
+    click("A_family", () => {
+      const { consult } = loadCtx();
+      const carrier = el("carrierA")?.value || consult.carrierA || "";
+      toggleDiscountWithUqRule("A", carrier, "family");
+      renderAll();
+    });
+    click("A_hikari", () => {
+      const { consult } = loadCtx();
+      const carrier = el("carrierA")?.value || consult.carrierA || "";
+      toggleDiscountWithUqRule("A", carrier, "hikari");
+      renderAll();
+    });
+    click("A_aupay", () => {
+      const { consult } = loadCtx();
+      const carrier = el("carrierA")?.value || consult.carrierA || "";
+      toggleDiscountWithUqRule("A", carrier, "aupay");
+      renderAll();
+    });
+
+    click("B_family", () => {
+      const { consult } = loadCtx();
+      const carrier = el("carrierB")?.value || consult.carrierB || "";
+      toggleDiscountWithUqRule("B", carrier, "family");
+      renderAll();
+    });
+    click("B_hikari", () => {
+      const { consult } = loadCtx();
+      const carrier = el("carrierB")?.value || consult.carrierB || "";
+      toggleDiscountWithUqRule("B", carrier, "hikari");
+      renderAll();
+    });
+    click("B_aupay", () => {
+      const { consult } = loadCtx();
+      const carrier = el("carrierB")?.value || consult.carrierB || "";
+      toggleDiscountWithUqRule("B", carrier, "aupay");
+      renderAll();
+    });
+
+    on("A_customDiscountYen", "change", ()=>{
+      let v = Number(el("A_customDiscountYen")?.value || 0) || 0;
+      if (el("A_customDiscountYen")) el("A_customDiscountYen").value = String(v);
+      setConsultPatch("A", { customDiscountYen: v });
+      renderAll();
+    });
+    on("A_customDiscountNote", "change", ()=>{
+      setConsultPatch("A", { customDiscountNote: el("A_customDiscountNote")?.value || "" });
+      renderAll();
+    });
+
+    on("B_customDiscountYen", "change", ()=>{
+      let v = Number(el("B_customDiscountYen")?.value || 0) || 0;
+      if (el("B_customDiscountYen")) el("B_customDiscountYen").value = String(v);
+      setConsultPatch("B", { customDiscountYen: v });
+      renderAll();
+    });
+    on("B_customDiscountNote", "change", ()=>{
+      setConsultPatch("B", { customDiscountNote: el("B_customDiscountNote")?.value || "" });
+      renderAll();
+    });
+
+    on("payType", "change", ()=>{
+      const { form } = loadCtx();
+      const v = el("payType")?.value || "";
+
+      if ((form.contractType === "deviceChange" || form.contractType === "new") && v === "nojimaInstall"){
+        if (el("payType")) el("payType").value = "";
+        saveConsultPatch({ payType:"" });
+        renderAll();
+        return;
+      }
+
+      saveConsultPatch({ payType:v });
+      renderAll();
+    });
+
+    on("needDataTransfer", "change", ()=>{
+      saveConsultPatch({ needDataTransfer: el("needDataTransfer")?.value || "no" });
+      renderAll();
+    });
+
+    on("needTradeInReception", "change", ()=>{
+      saveConsultPatch({ needTradeInReception: el("needTradeInReception")?.value || "no" });
+      renderAll();
+    });
+
+    click("backToContractBtn", () => {
+      window.location.href = "ContractNavigator.html";
+    });
+  }
+
+  function init(){
+    const { consult } = loadCtx();
+
+    if (!consult.viewMode) saveConsultPatch({ viewMode:"single" });
+
+    if (el("payType")) el("payType").value = consult.payType || "";
+    if (el("needDataTransfer")) el("needDataTransfer").value = consult.needDataTransfer || "no";
+    if (el("needTradeInReception")) el("needTradeInReception").value = consult.needTradeInReception || "no";
+
+    // talk default
+    if (!("A_optTalk" in consult)) setConsultPatch("A", { optTalk:"none" });
+    if (!("B_optTalk" in consult)) setConsultPatch("B", { optTalk:"none" });
+
+    // ahamoは初期5分
+    const a0 = consult.carrierA || "";
+    const b0 = consult.carrierB || "";
+    if (a0 === "ahamo") setConsultPatch("A", { optTalk: "short" });
+    if (b0 === "ahamo") setConsultPatch("B", { optTalk: "short" });
+
+    bind();
+    renderAll();
+  }
+
+  init();
+  </script>
+</body>
+</html>
