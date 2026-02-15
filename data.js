@@ -45,7 +45,11 @@
       items:{
         tokutoku_le5: { label:"トクトクプラン2（5GB）", price: 2948 },
         tokutoku_gt5: { label:"トクトクプラン2（30GB）", price: 4048 },
-        komikomi_value: { label:"コミコミプランバリュー(35GB)", price: 3828 }
+        komikomi_value: {
+          label: "コミコミプランバリュー(35GB)",
+          price: 3828,
+          includes:{ callShort:true, callShortMinutes:10 }
+        }
       }
     },
 
@@ -88,8 +92,10 @@
       unlimited:{ label:"通話定額（相当）",      price: 1980 }
     },
     uq: {
-      short:    { label:"通話放題ライト（相当）", price: 880 },
-      unlimited:{ label:"通話放題（相当）",      price: 1980 }
+      short:    { label:"10分かけ放題", price: 880 },
+      unlimited:{ label:"24時間かけ放題", price: 1980 },
+      min60:    { label:"1ヶ月60分まで", price: 660 },
+      senior:   { label:"24時間かけ放題(60歳以上)", price: 880 }
     },
     softbank: {
       short:    { label:"準定額オプション＋", price: 880 },     // 公式FAQで 880/1980 が確認できる
@@ -120,13 +126,15 @@
     // au
     au: {
       family: { label:"家族割プラス（最大想定）", amount: -1210 },
-      hikari: { label:"auスマートバリュー",       amount: -1100 }
+      hikari: { label: "auスマートバリュー", amount: -1100 },
+      aupay:  { label:"auPAYカード割", amount: -220 }
     },
 
     // UQ（UQ側にも自宅セット/家族セット等があるが、あなたのツールの入力が増えるので一旦同名で扱う）
     uq: {
       family: { label:"家族セット割（想定）", amount: -550 },
-      hikari: { label:"自宅セット割（想定）", amount: -1100 }
+      hikari: { label: "自宅セット割（想定）", amount: -1100 },
+      aupay:  { label:"auPAYカード割", amount: -220 }
     },
 
     // SoftBank
@@ -203,6 +211,14 @@
 
     const d = C.discounts?.[carrier]?.[kind];
     if (!d) return false;
+
+    if (carrier === "uq"){
+    if (planKey === "komikomi_value"){
+      return false;
+    }
+    // ★UQ: 家族割と光割は併用不可 → 光割優先
+    // eligibility自体は true で、後段で排他処理するのがUI的に扱いやすい
+  }
 
     // ---- UQ: family & hikari cannot stack (prefer hikari) ----
     // ctx = { discFamily:boolean, discHikari:boolean } を受け取れる場合のみ制御する

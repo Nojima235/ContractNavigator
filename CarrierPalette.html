@@ -57,6 +57,98 @@
       border-radius:10px;
     }
 
+    .talkBox{
+  margin-top:8px;
+  border:1px solid #e6e8eb;
+  border-radius:14px;
+  padding:10px;
+  background:#f8fafc;        /* 通話だけ薄く色付け */
+}
+.talkBoxTitle{
+  font-size:12px;
+  font-weight:1100;
+  color:#334155;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+.talkBoxTitle .tag{
+  font-size:11px;
+  font-weight:1000;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid #d9dde3;
+  background:#fff;
+  color:#475569;
+}
+.talkRow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.pillSelect{
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  border:1px solid #b7e4c7;
+  background:#f3fff7;
+  color:#0f5132;
+  border-radius:999px;
+  padding:8px 34px 8px 12px;
+  font-size:13px;
+  font-weight:900;
+  line-height:1;
+  cursor:pointer;
+  position:relative;
+}
+.pillSelectWrap{
+  position:relative;
+  display:inline-block;
+}
+.pillSelectWrap::after{
+  content:"▾";
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#0f5132;
+  font-size:12px;
+  pointer-events:none;
+  opacity:0.8;
+}
+.pillSelect:disabled{
+  opacity:0.45;
+  cursor:not-allowed;
+}
+
+.switchRow{ display:flex; align-items:center; gap:8px; }
+.switchLabel{ font-size:12px; color:#64748b; font-weight:1000; }
+.switch{
+  width:46px; height:26px;
+  border-radius:999px;
+  background:#e9ecef;
+  border:1px solid #d9dde3;
+  position:relative;
+  cursor:pointer;
+}
+.switch .knob{
+  width:22px; height:22px;
+  border-radius:999px;
+  background:#16a34a;
+  position:absolute;
+  top:1px; left:1px;
+  transition: transform 160ms ease;
+}
+.switch[aria-pressed="true"]{
+  background:#dcfce7;
+  border-color:#86efac;
+}
+.switch[aria-pressed="true"] .knob{
+  transform: translateX(20px);
+}
+
     .sectionTitle{
       display:flex;align-items:center;justify-content:space-between;gap:10px;
       margin-top:2px;
@@ -329,21 +421,38 @@
         </div>
 
         <div class="divider" style="margin:10px 0;"></div>
-        <div class="mini" style="margin:0;font-weight:1000;">通話 / 付帯オプション</div>
-        <div class="pillRow">
-          <div class="pill" id="A_talk_none">通話なし</div>
-          <div class="pill" id="A_talk_short">短時間かけ放題</div>
-          <div class="pill" id="A_talk_full">24時間かけ放題</div>
-          <div class="pill" id="A_talk_60">月60分</div>
-          <div class="pill" id="A_talk_senior">60歳以上 24時間</div>
-          <div class="pill" id="A_mail">メール持ち運び</div>
+        <div class="talkBox">
+        <div class="talkBoxTitle">
+          <span>通話オプション</span>
+          <div class="switchRow">
+            <span class="switchLabel">なし</span>
+            <button class="switch" id="A_talkSwitch" type="button" aria-pressed="false">
+              <span class="knob"></span>
+            </button>
+            <span class="switchLabel">あり</span>
+          </div>
         </div>
+
+        <div class="talkRow" id="A_talkKinds" style="margin-top:8px;">
+          <div class="pill" id="A_kind_short">短時間かけ放題</div>
+          <div class="pill" id="A_kind_unlimited">24時間かけ放題</div>
+          <div class="pill" id="A_kind_min60">1ヶ月60分</div>
+          <div class="pill" id="A_kind_senior">60歳以上</div>
+        </div>
+      </div>
 
         <div class="divider" style="margin:10px 0;"></div>
         <div class="mini" style="margin:0;font-weight:1000;">割引</div>
         <div class="pillRow" style="margin-top:6px;">
           <div class="pill disc" id="A_family">家族割</div>
-          <div class="pill disc" id="A_hikari">光割</div>
+
+          <span class="pillSelectWrap" id="A_familyCountWrap">
+            <select id="A_familyCount" class="pillSelect">
+              <option value="2">2回線</option>
+              <option value="3">3回線以上</option>
+            </select>
+          </span>
+          <div class="pill disc" id="A_hikari">光セット割</div>
           <div class="pill disc" id="A_aupay">auPAYカード割</div>
         </div>
 
@@ -374,20 +483,40 @@
         </div>
 
         <div class="divider" style="margin:10px 0;"></div>
-        <div class="mini" style="margin:0;font-weight:1000;">通話 / 付帯オプション</div>
-        <div class="pillRow">
-          <div class="pill" id="B_talk_none">通話なし</div>
-          <div class="pill" id="B_talk_short">短時間かけ放題</div>
-          <div class="pill" id="B_talk_full">24時間かけ放題</div>
-          <div class="pill" id="B_talk_60">月60分</div>
-          <div class="pill" id="B_talk_senior">60歳以上 24時間</div>
+        <div class="talkBox">
+        <div class="talkBoxTitle">
+          <span>通話オプション</span>
+          <div class="switchRow">
+            <span class="switchLabel">なし</span>
+            <button class="switch" id="A_talkSwitch" type="button" aria-pressed="false">
+              <span class="knob"></span>
+            </button>
+            <span class="switchLabel">あり</span>
+          </div>
+        </div>
+
+        <div class="talkRow" id="A_talkKinds" style="margin-top:8px;">
+          <div class="pill" id="A_kind_short">短時間かけ放題</div>
+          <div class="pill" id="A_kind_unlimited">24時間かけ放題</div>
+          <div class="pill" id="A_kind_min60">1ヶ月60分</div>
+          <div class="pill" id="A_kind_senior">60歳以上</div>
+        </div>
+      </div>
+
+        <div class="pillRow" style="margin-top:6px;">
           <div class="pill" id="B_mail">メール持ち運び</div>
         </div>
 
         <div class="divider" style="margin:10px 0;"></div>
         <div class="mini" style="margin:0;font-weight:1000;">割引</div>
         <div class="pillRow" style="margin-top:6px;">
-          <div class="pill disc" id="B_family">家族割</div>
+          <div class="pill disc" id="A_family">家族割</div>
+
+        <select id="A_familyCount" style="max-width:140px; padding:8px 10px;" class="hidden">
+          <option value="2">2回線</option>
+          <option value="3">3回線</option>
+          <option value="4">4回線以上</option>
+        </select>
           <div class="pill disc" id="B_hikari">光割</div>
           <div class="pill disc" id="B_aupay">auPAYカード割</div>
         </div>
@@ -688,13 +817,13 @@
   // 「短時間かけ放題」表示（キャリアで 5/10 を出し分け）
   function shortTalkLabel(carrier, planKey){
     // ahamo / docomo は 5分
-    if (carrier === "docomo" || carrier === "ahamo") return "5分かけ放題";
+    if (carrier === "docomo" || carrier === "ahamo") return "5分以内";
 
     // UQ：コミコミは 10分付帯だが、表示は同じでOK
-    if (carrier === "uq") return "10分かけ放題";
+    if (carrier === "uq") return "10分以内";
 
     // ymobile/sb/au は 10分想定
-    return "10分かけ放題";
+    return "10分以内";
   }
 
   function updateCustomBadge(side, consult){
@@ -739,6 +868,43 @@
     box.textContent = msg;
     box.classList.remove("hidden");
   }
+
+  function needsFamilyCount(carrier, planKey){
+  if (carrier === "au" || carrier === "softbank") return true;
+
+  if (carrier === "docomo"){
+    // ドコモMAXの planKey 命名に合わせて調整してOK
+    // 例: "docomo_max" / "max" / "irumo_max" など
+    return String(planKey || "").toLowerCase().includes("max");
+  }
+  return false;
+}
+
+function applyFamilyCountUI(side, carrier, consult){
+  const planKey = getConsult(consult, side, "planKey", "");
+  const famOn = !!getConsult(consult, side, "discFamily", false);
+
+  const wrap = el(side + "_familyCountWrap");
+  const sel  = el(side + "_familyCount");
+  if (!wrap || !sel) return;
+
+  const need = needsFamilyCount(carrier, planKey);
+
+  // 必要なときだけ表示（家族割OFFでも表示はして、ONで選べる方が操作迷子になりにくい）
+  wrap.classList.toggle("hidden", !need);
+
+  if (!need){
+    // 不要ならUIも状態も触らない（保存値は残してOK）
+    return;
+  }
+
+  // 必要なとき：家族割ONのときだけ選べる
+  sel.disabled = !famOn;
+
+  // 値同期（未設定は2回線）
+  const cur = Number(getConsult(consult, side, "discFamilyCount", 2) || 2) || 2;
+  sel.value = String(cur >= 4 ? 4 : (cur <= 2 ? 2 : 3));
+}
 
   function syncPlanSelect(side, carrier, form, consult){
     const sel = el(side + "_planSelect");
@@ -823,225 +989,358 @@
     applyOne(apyBtn, "aupay",  "discAupay");
   }
 
+  function enforceDefaultsAfterPlan(side, carrier, consult){
+      const planKey = getConsult(consult, side, "planKey", "");
+      // 「まだ未設定」のときだけ初期値を入れる
+      const enabledExists = (getKey(side, "talkEnabled") in consult);
+      const kindExists    = (getKey(side, "talkKind") in consult);
+
+      // UQコミコミ：初期は short(=10分内包) を入れるが、ユーザー選択は尊重する
+      if (carrier === "uq" && planKey === "komikomi_value"){
+        if (!enabledExists || !kindExists){
+          setConsultPatch(side, { talkEnabled:true, talkKind:"short" });
+        }
+        return;
+      }
+
+      // ahamo：初期は short(=5分内包) を入れるが、ユーザー選択は尊重する
+      if (carrier === "ahamo"){
+        if (!enabledExists || !kindExists){
+          setConsultPatch(side, { talkEnabled:true, talkKind:"short" });
+        }
+        return;
+      }
+}
+
+function isUqKomikomi(carrier, consult, side){
+  if (carrier !== "uq") return false;
+  const planKey = getConsult(consult, side, "planKey", "");
+  return planKey === "komikomi_value";
+}
+
+function forceKomikomiTalkOn(side){
+  // コミコミは通話内包（short）前提：必ずON+shortへ
+  setConsultPatch(side, { talkEnabled:true, talkKind:"short" });
+}
+
   function calcMonthly(carrier, form, consult, side){
-    if (!carrier) return { total: NaN, lines: [] };
-    if (!window.PRICE_DB) return { total: NaN, lines: [] };
+  if (!carrier) return { total: NaN, lines: [] };
+  if (!window.PRICE_DB) return { total: NaN, lines: [] };
 
-    const dataUsage = form.dataUsage || "lte30";
+  const dataUsage = form.dataUsage || "lte30";
 
-    const chosenKey = getConsult(consult, side, "planKey", "");
-    const fallbackKey = window.PRICE_DB.getDefaultPlanKey ? window.PRICE_DB.getDefaultPlanKey(carrier, dataUsage) : "";
-    const planKey = chosenKey || fallbackKey;
+  const chosenKey = getConsult(consult, side, "planKey", "");
+  const fallbackKey = window.PRICE_DB.getDefaultPlanKey
+    ? window.PRICE_DB.getDefaultPlanKey(carrier, dataUsage)
+    : "";
 
-    const plan = window.PRICE_DB.getPlan ? window.PRICE_DB.getPlan(carrier, planKey) : null;
-    const base = plan ? plan.price : 0;
+  const carrierObj = window.PRICE_DB.getCarrier ? window.PRICE_DB.getCarrier(carrier) : null;
+  const plans = carrierObj?.plans || {};
 
-    // ---- voice (single select) ----
-    const talk = getConsult(consult, side, "optTalk", "none"); // none | short | full | senior | min60
-    let talkYen = 0;
+  const chosenOk = !!(chosenKey && plans[chosenKey]);
+  const fallbackOk = !!(fallbackKey && plans[fallbackKey]);
 
-    const includesCallShort = !!(plan && plan.includes && plan.includes.callShort);
+  const planKey =
+    chosenOk ? chosenKey :
+    fallbackOk ? fallbackKey :
+    (Object.keys(plans)[0] || "");
 
-    if (talk === "short"){
+  const plan = window.PRICE_DB.getPlan ? window.PRICE_DB.getPlan(carrier, planKey) : null;
+  const base = plan ? plan.price : 0;
+
+  // ===== talk (2-step: enabled + kind) =====
+  const talkEnabled = !!getConsult(consult, side, "talkEnabled", false);
+  const talkKind = getConsult(consult, side, "talkKind", "short"); // short|unlimited|min60|senior
+  let talkYen = 0;
+
+  const includesCallShort = !!(plan?.includes?.callShort);
+  const includesMinutes = Number(plan?.includes?.callShortMinutes || 0) || 0;
+
+  if (talkEnabled){
+    if (talkKind === "short"){
+      // 内包(ahamo=5分, UQコミコミ=10分など)なら追加0円
       if (!includesCallShort){
         const v = window.PRICE_DB.getVoice ? window.PRICE_DB.getVoice(carrier, "short") : null;
         talkYen = v ? v.price : 0;
+      } else {
+        talkYen = 0;
       }
-    } else if (talk === "full"){
+    } else if (talkKind === "unlimited"){
       const v = window.PRICE_DB.getVoice ? window.PRICE_DB.getVoice(carrier, "unlimited") : null;
       talkYen = v ? v.price : 0;
-    } else if (talk === "senior"){
-      const v = window.PRICE_DB.getVoice ? window.PRICE_DB.getVoice(carrier, "senior") : null;
-      talkYen = v ? v.price : 0;
-    } else if (talk === "min60"){
+    } else if (talkKind === "min60"){
       const v = window.PRICE_DB.getVoice ? window.PRICE_DB.getVoice(carrier, "min60") : null;
       talkYen = v ? v.price : 0;
+    } else if (talkKind === "senior"){
+      const v = window.PRICE_DB.getVoice ? window.PRICE_DB.getVoice(carrier, "senior") : null;
+      talkYen = v ? v.price : 0;
     }
-
-    // ---- discounts (eligibility) ----
-    let family = 0;
-    if (getConsult(consult, side, "discFamily", false) &&
-        window.PRICE_DB.isDiscountEligible && window.PRICE_DB.isDiscountEligible(carrier, "family", planKey)){
-      const d = window.PRICE_DB.getDiscount ? window.PRICE_DB.getDiscount(carrier, "family") : null;
-      family = d ? d.amount : 0;
-    }
-
-    let hikari = 0;
-    if (getConsult(consult, side, "discHikari", false) &&
-        window.PRICE_DB.isDiscountEligible && window.PRICE_DB.isDiscountEligible(carrier, "hikari", planKey)){
-      const d = window.PRICE_DB.getDiscount ? window.PRICE_DB.getDiscount(carrier, "hikari") : null;
-      hikari = d ? d.amount : 0;
-    }
-
-    let aupay = 0;
-    if (getConsult(consult, side, "discAupay", false) &&
-        window.PRICE_DB.isDiscountEligible && window.PRICE_DB.isDiscountEligible(carrier, "aupay", planKey)){
-      const d = window.PRICE_DB.getDiscount ? window.PRICE_DB.getDiscount(carrier, "aupay") : null;
-      aupay = d ? d.amount : 0;
-    }
-
-    // mail carry
-    const mailOn = !!getConsult(consult, side, "optMailCarry", false);
-    const mail = mailOn ? (window.PRICE_DB.getMailCarry ? (window.PRICE_DB.getMailCarry(carrier)?.price || 0) : 0) : 0;
-
-    // custom (±)
-    const custom = Number(getConsult(consult, side, "customDiscountYen", 0) || 0) || 0;
-
-    const total = base + talkYen + mail + family + hikari + aupay + custom;
-
-    const lines = [];
-    lines.push({ k:"プラン", v: base });
-
-    if (talkYen !== 0)  lines.push({ k:"通話OP", v: talkYen });
-    if (mail !== 0)     lines.push({ k:"メール", v: mail });
-    if (family !== 0)   lines.push({ k:"家族割", v: family });
-    if (hikari !== 0)   lines.push({ k:"光割", v: hikari });
-    if (aupay !== 0)    lines.push({ k:"auPAYカード割", v: aupay });
-    if (custom !== 0)   lines.push({ k:"任意調整", v: custom });
-
-    return { total, lines, planKey };
   }
 
-  function renderAll(){
-    const { form, consult } = loadCtx();
+  // ===== discounts (eligibility) =====
+  let family = 0;
+  if (getConsult(consult, side, "discFamily", false) &&
+      window.PRICE_DB.isDiscountEligible && window.PRICE_DB.isDiscountEligible(carrier, "family", planKey)){
+    const d = window.PRICE_DB.getDiscount ? window.PRICE_DB.getDiscount(carrier, "family") : null;
+    family = d ? d.amount : 0;
+  }
 
-    const deviceFlow = needsDeviceFlow(form.contractType || "");
-    const simOnly = (form.contractType === "mnpSim");
-    const isNew = (form.contractType === "new");
+  let hikari = 0;
+  if (getConsult(consult, side, "discHikari", false) &&
+      window.PRICE_DB.isDiscountEligible && window.PRICE_DB.isDiscountEligible(carrier, "hikari", planKey)){
+    const d = window.PRICE_DB.getDiscount ? window.PRICE_DB.getDiscount(carrier, "hikari") : null;
+    hikari = d ? d.amount : 0;
+  }
 
-    el("payTypeBlock")?.classList.toggle("hidden", !deviceFlow || simOnly);
-    el("simOnlyNote")?.classList.toggle("hidden", !simOnly);
+  let aupay = 0;
+  if (getConsult(consult, side, "discAupay", false) &&
+      window.PRICE_DB.isDiscountEligible && window.PRICE_DB.isDiscountEligible(carrier, "aupay", planKey)){
+    const d = window.PRICE_DB.getDiscount ? window.PRICE_DB.getDiscount(carrier, "aupay") : null;
+    aupay = d ? d.amount : 0;
+  }
 
-    const hideDT = (!deviceFlow || simOnly || isNew);
-    el("dataTransferBlock")?.classList.toggle("hidden", hideDT);
-    el("tradeInReceptionBlock")?.classList.toggle("hidden", hideDT);
+  // ===== mail carry =====
+  const mailOn = !!getConsult(consult, side, "optMailCarry", false);
+  const mail = mailOn ? (window.PRICE_DB.getMailCarry ? (window.PRICE_DB.getMailCarry(carrier)?.price || 0) : 0) : 0;
 
-    const banNojima = (form.contractType === "deviceChange" || form.contractType === "new");
-    const optNoj = el("optNojimaInstall");
-    if (optNoj){
-      optNoj.disabled = banNojima;
-      optNoj.textContent = banNojima ? "分リセ ※選択不可" : "分リセ";
+  // ===== custom (±) =====
+  const custom = Number(getConsult(consult, side, "customDiscountYen", 0) || 0) || 0;
+
+  const total = base + talkYen + mail + family + hikari + aupay + custom;
+
+  // ===== breakdown lines =====
+  const lines = [];
+  lines.push({ k:"プラン", v: base });
+
+  if (talkEnabled){
+    // 0円でも内包を明示したいなら表示（好みで）
+    if (talkKind === "short" && includesCallShort){
+      const m = includesMinutes ? `${includesMinutes}分` : "短時間";
+      lines.push({ k:`短時間かけ放題（内包${m}）`, v: 0 });
+    } else if (talkYen !== 0){
+      const name =
+        talkKind === "short" ? "短時間以内" :
+        talkKind === "unlimited" ? "かけ放題" :
+        talkKind === "min60" ? "1ヶ月60分" :
+        talkKind === "senior" ? "60歳以上 24時間" : "通話OP";
+      lines.push({ k:name, v: talkYen });
     }
-    if (banNojima && el("payType") && el("payType").value === "nojimaInstall"){
-      el("payType").value = "";
-      saveConsultPatch({ payType:"" });
+  }
+
+  if (mail !== 0)     lines.push({ k:"メール", v: mail });
+  if (family !== 0)   lines.push({ k:"家族割", v: family });
+  if (hikari !== 0)   lines.push({ k:"光割", v: hikari });
+  if (aupay !== 0)    lines.push({ k:"auPAYカード割", v: aupay });
+  if (custom !== 0)   lines.push({ k:"任意調整", v: custom });
+
+  return { total, lines, planKey };
+}
+
+function renderAll(){
+  let { form, consult } = loadCtx();
+
+  const deviceFlow = needsDeviceFlow(form.contractType || "");
+  const simOnly = (form.contractType === "mnpSim");
+  const isNew = (form.contractType === "new");
+
+  el("payTypeBlock")?.classList.toggle("hidden", !deviceFlow || simOnly);
+  el("simOnlyNote")?.classList.toggle("hidden", !simOnly);
+
+  const hideDT = (!deviceFlow || simOnly || isNew);
+  el("dataTransferBlock")?.classList.toggle("hidden", hideDT);
+  el("tradeInReceptionBlock")?.classList.toggle("hidden", hideDT);
+
+  const banNojima = (form.contractType === "deviceChange" || form.contractType === "new");
+  const optNoj = el("optNojimaInstall");
+  if (optNoj){
+    optNoj.disabled = banNojima;
+    optNoj.textContent = banNojima ? "分リセ ※選択不可" : "分リセ";
+  }
+  if (banNojima && el("payType") && el("payType").value === "nojimaInstall"){
+    el("payType").value = "";
+    saveConsultPatch({ payType:"" });
+  }
+
+  updatePointAlert();
+
+  const mode = readMode();
+  el("carrierGrid")?.classList.toggle("compare", mode === "compare");
+  document.body.dataset.mode = mode;
+
+  el("carrierBBlock")?.classList.toggle("hidden", mode !== "compare");
+  el("optBlockB")?.classList.toggle("hidden", mode !== "compare");
+  el("resultB")?.classList.toggle("hidden", mode !== "compare");
+  el("deltaBox")?.classList.toggle("hidden", mode !== "compare");
+
+  if (el("carrierA")) el("carrierA").value = consult.carrierA || "";
+  if (el("carrierB")) el("carrierB").value = consult.carrierB || "";
+
+  const a = el("carrierA")?.value || "";
+  const b = el("carrierB")?.value || "";
+
+  el("optTitleA") && (el("optTitleA").textContent = carrierLabel(a));
+  el("optTitleB") && (el("optTitleB").textContent = carrierLabel(b));
+
+  // プラン選択同期（planKeyを書き戻す）
+  syncPlanSelect("A", a, form, consult);
+  syncPlanSelect("B", b, form, consult);
+
+  // planKeyがsyncで変わった可能性があるので読み直す
+  ({ form, consult } = loadCtx());
+
+  // 初期値だけ enforce（固定はしない）
+  enforceDefaultsAfterPlan("A", a, consult);
+  enforceDefaultsAfterPlan("B", b, consult);
+
+  ({ form, consult } = loadCtx());
+
+  // UQ割引の併用不可整合（光割優先）
+  enforceUqDiscountRule("A", a, consult);
+  enforceUqDiscountRule("B", b, consult);
+  ({ form, consult } = loadCtx());
+
+  // 割引可否UI（UQコミコミは割引自体を隠す）
+  applyDiscountEligibilityUI("A", a, consult);
+  applyDiscountEligibilityUI("B", b, consult);
+
+  applyFamilyCountUI("A", a, consult);
+  applyFamilyCountUI("B", b, consult);
+
+  const aPlanKey = getConsult(consult, "A", "planKey", "");
+  const bPlanKey = getConsult(consult, "B", "planKey", "");
+
+  // ===== 「短時間」ラベル（内包分数があれば優先） =====
+  const setShortKindLabel = (side, carrier, planKey) => {
+    const btn = el(side + "_kind_short");
+    if (!btn) return;
+
+    const plan = window.PRICE_DB?.getPlan ? window.PRICE_DB.getPlan(carrier, planKey) : null;
+    const includes = !!plan?.includes?.callShort;
+    const mins = Number(plan?.includes?.callShortMinutes || 0) || 0;
+
+    if (includes && mins){
+      btn.textContent = `${mins}分以内`;
+      return;
     }
-
-    updatePointAlert();
-
-    const mode = readMode();
-    el("carrierGrid")?.classList.toggle("compare", mode === "compare");
-    document.body.dataset.mode = mode;
-
-    el("carrierBBlock")?.classList.toggle("hidden", mode !== "compare");
-    el("optBlockB")?.classList.toggle("hidden", mode !== "compare");
-    el("resultB")?.classList.toggle("hidden", mode !== "compare");
-    el("deltaBox")?.classList.toggle("hidden", mode !== "compare");
-
-    if (el("carrierA")) el("carrierA").value = consult.carrierA || "";
-    if (el("carrierB")) el("carrierB").value = consult.carrierB || "";
-
-    const a = el("carrierA")?.value || "";
-    const b = el("carrierB")?.value || "";
-
-    // ahamoは最初から「5分」が選択されていてほしい（通話なしは表示しない）
-    const enforceAhamo = (side, carrier) => {
-      if (carrier !== "ahamo") return;
-      if (getConsult(consult, side, "optTalk", "none") !== "short"){
-        setConsultPatch(side, { optTalk: "short" });
-      }
-    };
-    enforceAhamo("A", a);
-    enforceAhamo("B", b);
-
-    el("optTitleA") && (el("optTitleA").textContent = carrierLabel(a));
-    el("optTitleB") && (el("optTitleB").textContent = carrierLabel(b));
-
-    syncPlanSelect("A", a, form, consult);
-    syncPlanSelect("B", b, form, consult);
-
-    // UQ割引の併用不可整合（光割優先）
-    enforceUqDiscountRule("A", a, consult);
-    enforceUqDiscountRule("B", b, consult);
-
-    // 割引可否UI（UQコミコミは割引自体を隠す）
-    applyDiscountEligibilityUI("A", a, consult);
-    applyDiscountEligibilityUI("B", b, consult);
-
-    const aPlanKey = getConsult(consult, "A", "planKey", "");
-    const bPlanKey = getConsult(consult, "B", "planKey", "");
-
-    // 短時間表示
-    el("A_talk_short") && (el("A_talk_short").textContent = shortTalkLabel(a, aPlanKey));
-    el("B_talk_short") && (el("B_talk_short").textContent = shortTalkLabel(b, bPlanKey));
-
-    // ahamoは「通話なし」非表示
-    el("A_talk_none") && el("A_talk_none").classList.toggle("hidden", a === "ahamo");
-    el("B_talk_none") && el("B_talk_none").classList.toggle("hidden", b === "ahamo");
-
-    // UQの月60分 / 60歳以上 を“定義があるときだけ”出す
-    const hasVoice = (carrier, kind) => !!(window.PRICE_DB && window.PRICE_DB.getVoice && window.PRICE_DB.getVoice(carrier, kind));
-    el("A_talk_60") && el("A_talk_60").classList.toggle("hidden", !hasVoice(a, "min60"));
-    el("B_talk_60") && el("B_talk_60").classList.toggle("hidden", !hasVoice(b, "min60"));
-    el("A_talk_senior") && el("A_talk_senior").classList.toggle("hidden", !hasVoice(a, "senior"));
-    el("B_talk_senior") && el("B_talk_senior").classList.toggle("hidden", !hasVoice(b, "senior"));
-
-    // 状態反映
-    const A_talk = getConsult(consult,"A","optTalk","none");
-    pillSet(el("A_talk_none"),   A_talk === "none");
-    pillSet(el("A_talk_short"),  A_talk === "short");
-    pillSet(el("A_talk_full"),   A_talk === "full");
-    pillSet(el("A_talk_60"),     A_talk === "min60");
-    pillSet(el("A_talk_senior"), A_talk === "senior");
-
-    const B_talk = getConsult(consult,"B","optTalk","none");
-    pillSet(el("B_talk_none"),   B_talk === "none");
-    pillSet(el("B_talk_short"),  B_talk === "short");
-    pillSet(el("B_talk_full"),   B_talk === "full");
-    pillSet(el("B_talk_60"),     B_talk === "min60");
-    pillSet(el("B_talk_senior"), B_talk === "senior");
-
-    pillSet(el("A_mail"),   !!getConsult(consult,"A","optMailCarry",false));
-    pillSet(el("A_family"), !!getConsult(consult,"A","discFamily",false));
-    pillSet(el("A_hikari"), !!getConsult(consult,"A","discHikari",false));
-    pillSet(el("A_aupay"),  !!getConsult(consult,"A","discAupay",false));
-
-    pillSet(el("B_mail"),   !!getConsult(consult,"B","optMailCarry",false));
-    pillSet(el("B_family"), !!getConsult(consult,"B","discFamily",false));
-    pillSet(el("B_hikari"), !!getConsult(consult,"B","discHikari",false));
-    pillSet(el("B_aupay"),  !!getConsult(consult,"B","discAupay",false));
-
-    if (el("A_customDiscountYen")) el("A_customDiscountYen").value = String(Number(getConsult(consult,"A","customDiscountYen",0) || 0) || 0);
-    if (el("A_customDiscountNote")) el("A_customDiscountNote").value = getConsult(consult,"A","customDiscountNote","") || "";
-    if (el("B_customDiscountYen")) el("B_customDiscountYen").value = String(Number(getConsult(consult,"B","customDiscountYen",0) || 0) || 0);
-    if (el("B_customDiscountNote")) el("B_customDiscountNote").value = getConsult(consult,"B","customDiscountNote","") || "";
-
-    updateCustomBadge("A", consult);
-    updateCustomBadge("B", consult);
-
-    el("brandA") && (el("brandA").textContent = carrierLabel(a));
-    el("brandB") && (el("brandB").textContent = carrierLabel(b));
-
-    const rA = calcMonthly(a, form, consult, "A");
-    const rB = calcMonthly(b, form, consult, "B");
-
-    el("priceA") && (el("priceA").textContent = yen(rA.total));
-    renderBreakdown("bdA", rA.lines || []);
-
-    el("priceB") && (el("priceB").textContent = yen(rB.total));
-    renderBreakdown("bdB", rB.lines || []);
-
-    if (mode === "compare" && a && b && Number.isFinite(rA.total) && Number.isFinite(rB.total)){
-      const d = rA.total - rB.total;
-      const abs = Math.abs(d);
-      el("deltaText") && (el("deltaText").textContent = `差額：${yen(abs)}`);
+    if (carrier === "docomo" || carrier === "ahamo" || carrier === "au" || carrier === "softbank"){
+      btn.textContent = "5分以内";
     } else {
-      el("deltaText") && (el("deltaText").textContent = "差額：—");
+      btn.textContent = "10分以内";
     }
+  };
+  setShortKindLabel("A", a, aPlanKey);
+  setShortKindLabel("B", b, bPlanKey);
 
-    renderCarrierCards("A");
-    if (readMode() === "compare") renderCarrierCards("B");
+  // ===== 種類表示：定義がないものは隠す =====
+  const hasVoice = (carrier, kind) =>
+    !!(window.PRICE_DB && window.PRICE_DB.getVoice && window.PRICE_DB.getVoice(carrier, kind));
+
+  const applyTalkKindVisibility = (side, carrier) => {
+    // short は常に出す（内包0円 or 有料のどちらでも）
+    el(side + "_kind_unlimited")?.classList.toggle("hidden", !hasVoice(carrier, "unlimited"));
+    el(side + "_kind_min60")?.classList.toggle("hidden", !hasVoice(carrier, "min60"));
+    el(side + "_kind_senior")?.classList.toggle("hidden", !hasVoice(carrier, "senior"));
+  };
+  applyTalkKindVisibility("A", a);
+  applyTalkKindVisibility("B", b);
+
+  // ===== 通話UI状態反映（enabled + kind） =====
+  const applyTalkState = (side, carrier, consult) => {
+  const komi = isUqKomikomi(carrier, consult, side);
+
+  // コミコミは必ず通話ON
+  if (komi){
+    const enabled = !!getConsult(consult, side, "talkEnabled", false);
+    const kind = getConsult(consult, side, "talkKind", "short");
+    if (!enabled || kind !== "short"){
+      forceKomikomiTalkOn(side);
+      // localStorage更新されるので、この呼び出し元(renderAll)側で後でloadCtxし直すのが理想
+    }
   }
+
+  const enabled = !!getConsult(consult, side, "talkEnabled", false);
+  const kind = getConsult(consult, side, "talkKind", "short");
+
+  // コミコミは OFFボタン自体を消す（視覚的にも「なし不可」）
+  el(side + "_talk_off")?.classList.toggle("hidden", komi);
+
+  // kinds row show/hide（コミコミは常に表示）
+  el(side + "_talkKinds")?.classList.toggle("hidden", !enabled && !komi);
+
+  const sw = el(side + "_talkSwitch");
+  if (sw){
+    const komi = isUqKomikomi(carrier, consult, side);
+    const enabled = !!getConsult(consult, side, "talkEnabled", false) || komi;
+    sw.setAttribute("aria-pressed", enabled ? "true" : "false");
+  }
+  el(side + "_talkKinds")?.classList.toggle("hidden", !(!!getConsult(consult, side, "talkEnabled", false)) && !isUqKomikomi(carrier, consult, side));
+
+  // kinds
+  pillSet(el(side + "_kind_short"),     (enabled || komi) && kind === "short");
+  pillSet(el(side + "_kind_unlimited"), (enabled || komi) && kind === "unlimited");
+  pillSet(el(side + "_kind_min60"),     (enabled || komi) && kind === "min60");
+  pillSet(el(side + "_kind_senior"),    (enabled || komi) && kind === "senior");
+};
+  applyTalkState("A", a, consult);
+  applyTalkState("B", b, consult);
+
+  // ===== その他pill状態 =====
+  pillSet(el("A_mail"),   !!getConsult(consult,"A","optMailCarry",false));
+  pillSet(el("A_family"), !!getConsult(consult,"A","discFamily",false));
+  pillSet(el("A_hikari"), !!getConsult(consult,"A","discHikari",false));
+  pillSet(el("A_aupay"),  !!getConsult(consult,"A","discAupay",false));
+
+  pillSet(el("B_mail"),   !!getConsult(consult,"B","optMailCarry",false));
+  pillSet(el("B_family"), !!getConsult(consult,"B","discFamily",false));
+  pillSet(el("B_hikari"), !!getConsult(consult,"B","discHikari",false));
+  pillSet(el("B_aupay"),  !!getConsult(consult,"B","discAupay",false));
+
+  const famAon = !!getConsult(consult,"A","discFamily",false);
+  el("A_familyCount")?.classList.toggle("hidden", !famAon);
+  if (famAon && el("A_familyCount")){
+    const cur = Number(getConsult(consult,"A","discFamilyCount",2) || 2) || 2;
+    el("A_familyCount").value = String(cur);
+  }
+
+  const famBon = !!getConsult(consult,"B","discFamily",false);
+  el("B_familyCount")?.classList.toggle("hidden", !famBon);
+  if (famBon && el("B_familyCount")){
+    const cur = Number(getConsult(consult,"B","discFamilyCount",2) || 2) || 2;
+    el("B_familyCount").value = String(cur);
+  }
+
+  // 任意調整欄の同期
+  if (el("A_customDiscountYen")) el("A_customDiscountYen").value = String(Number(getConsult(consult,"A","customDiscountYen",0) || 0) || 0);
+  if (el("A_customDiscountNote")) el("A_customDiscountNote").value = getConsult(consult,"A","customDiscountNote","") || "";
+  if (el("B_customDiscountYen")) el("B_customDiscountYen").value = String(Number(getConsult(consult,"B","customDiscountYen",0) || 0) || 0);
+  if (el("B_customDiscountNote")) el("B_customDiscountNote").value = getConsult(consult,"B","customDiscountNote","") || "";
+
+  updateCustomBadge("A", consult);
+  updateCustomBadge("B", consult);
+
+  // ===== 結果 =====
+  el("brandA") && (el("brandA").textContent = carrierLabel(a));
+  el("brandB") && (el("brandB").textContent = carrierLabel(b));
+
+  const rA = calcMonthly(a, form, consult, "A");
+  const rB = calcMonthly(b, form, consult, "B");
+
+  el("priceA") && (el("priceA").textContent = yen(rA.total));
+  renderBreakdown("bdA", rA.lines || []);
+
+  el("priceB") && (el("priceB").textContent = yen(rB.total));
+  renderBreakdown("bdB", rB.lines || []);
+
+  if (mode === "compare" && a && b && Number.isFinite(rA.total) && Number.isFinite(rB.total)){
+    const d = rA.total - rB.total;
+    el("deltaText") && (el("deltaText").textContent = `差額：${yen(Math.abs(d))}`);
+  } else {
+    el("deltaText") && (el("deltaText").textContent = "差額：—");
+  }
+
+  renderCarrierCards("A");
+  if (readMode() === "compare") renderCarrierCards("B");
+}
 
   function bind(){
     const toggleMode = () => {
@@ -1074,19 +1373,54 @@
       renderAll();
     });
 
-    const setTalk = (side, v) => { setConsultPatch(side, { optTalk: v }); renderAll(); };
+    on("A_familyCount", "change", ()=>{
+      const v = Number(el("A_familyCount")?.value || 2) || 2;
+      setConsultPatch("A", { discFamilyCount: v });
+      renderAll();
+    });
+    on("B_familyCount", "change", ()=>{
+      const v = Number(el("B_familyCount")?.value || 2) || 2;
+      setConsultPatch("B", { discFamilyCount: v });
+      renderAll();
+    });
 
-    click("A_talk_none",   () => setTalk("A","none"));
-    click("A_talk_short",  () => setTalk("A","short"));
-    click("A_talk_full",   () => setTalk("A","full"));
-    click("A_talk_60",     () => setTalk("A","min60"));
-    click("A_talk_senior", () => setTalk("A","senior"));
+    const setTalkEnabled = (side, on) => { setConsultPatch(side, { talkEnabled: !!on }); renderAll(); };
+    const setTalkKind = (side, kind) => { setConsultPatch(side, { talkEnabled:true, talkKind: kind }); renderAll(); };
 
-    click("B_talk_none",   () => setTalk("B","none"));
-    click("B_talk_short",  () => setTalk("B","short"));
-    click("B_talk_full",   () => setTalk("B","full"));
-    click("B_talk_60",     () => setTalk("B","min60"));
-    click("B_talk_senior", () => setTalk("B","senior"));
+    click("A_talkSwitch", () => {
+      const { consult } = loadCtx();
+      const carrier = el("carrierA")?.value || consult.carrierA || "";
+      const enabled = !!getConsult(consult,"A","talkEnabled",false);
+
+      // コミコミはOFF禁止：押してもON維持
+      if (isUqKomikomi(carrier, consult, "A")){
+        forceKomikomiTalkOn("A");
+      } else {
+        setConsultPatch("A", { talkEnabled: !enabled });
+      }
+      renderAll();
+    });
+    click("A_kind_short",     () => setTalkKind("A","short"));
+    click("A_kind_unlimited", () => setTalkKind("A","unlimited"));
+    click("A_kind_min60",     () => setTalkKind("A","min60"));
+    click("A_kind_senior",    () => setTalkKind("A","senior"));
+
+    click("B_talkSwitch", () => {
+      const { consult } = loadCtx();
+      const carrier = el("carrierB")?.value || consult.carrierB || "";
+      const enabled = !!getConsult(consult,"B","talkEnabled",false);
+
+      if (isUqKomikomi(carrier, consult, "B")){
+        forceKomikomiTalkOn("B");
+      } else {
+        setConsultPatch("B", { talkEnabled: !enabled });
+      }
+      renderAll();
+    });
+    click("B_kind_short",     () => setTalkKind("B","short"));
+    click("B_kind_unlimited", () => setTalkKind("B","unlimited"));
+    click("B_kind_min60",     () => setTalkKind("B","min60"));
+    click("B_kind_senior",    () => setTalkKind("B","senior"));
 
     click("A_mail", () => {
       const { consult } = loadCtx();
@@ -1200,14 +1534,14 @@
     if (el("needTradeInReception")) el("needTradeInReception").value = consult.needTradeInReception || "no";
 
     // talk default
-    if (!("A_optTalk" in consult)) setConsultPatch("A", { optTalk:"none" });
-    if (!("B_optTalk" in consult)) setConsultPatch("B", { optTalk:"none" });
+    if (!("A_talkEnabled" in consult)) setConsultPatch("A", { talkEnabled:false, talkKind:"short" });
+    if (!("B_talkEnabled" in consult)) setConsultPatch("B", { talkEnabled:false, talkKind:"short" });
 
     // ahamoは初期5分
     const a0 = consult.carrierA || "";
     const b0 = consult.carrierB || "";
-    if (a0 === "ahamo") setConsultPatch("A", { optTalk: "short" });
-    if (b0 === "ahamo") setConsultPatch("B", { optTalk: "short" });
+    if (a0 === "ahamo") setConsultPatch("A", { talkEnabled:true, talkKind:"short" });
+    if (b0 === "ahamo") setConsultPatch("B", { talkEnabled:true, talkKind:"short" });
 
     bind();
     renderAll();
