@@ -456,6 +456,7 @@
               <option value="3">3回線以上</option>
             </select>
           </span>
+          <div class="pill disc" id="A_oyako">親子割</div>
           <div class="pill disc" id="A_hikari">光セット割</div>
           <div class="pill disc" id="A_aupay">auPAYカード割</div>
         </div>
@@ -515,13 +516,14 @@
         <div class="divider" style="margin:10px 0;"></div>
         <div class="mini" style="margin:0;font-weight:1000;">割引</div>
         <div class="pillRow" style="margin-top:6px;">
-          <div class="pill disc" id="A_family">家族割</div>
-
-        <select id="A_familyCount" style="max-width:140px; padding:8px 10px;" class="hidden">
-          <option value="2">2回線</option>
-          <option value="3">3回線</option>
-          <option value="4">4回線以上</option>
-        </select>
+          <div class="pill disc" id="B_family">家族割</div>
+          <span class="pillSelectWrap" id="B_familyCountWrap">
+            <select id="B_familyCount" class="pillSelect">
+              <option value="2">2回線</option>
+              <option value="3">3回線以上</option>
+            </select>
+          </span>
+          <div class="pill disc" id="B_oyako">親子割</div>
           <div class="pill disc" id="B_hikari">光セット割</div>
           <div class="pill disc" id="B_aupay">auPAYカード割</div>
         </div>
@@ -806,7 +808,14 @@
       card.onclick = () => {
         if (sel) sel.value = key;
         saveConsultPatch(side === "A" ? { carrierA:key } : { carrierB:key });
-        setConsultPatch(side, { planKey: "" }); // 古いplanKey破棄
+
+        // キャリア切替で状態が残留しないように初期化（A/B共通）
+        setConsultPatch(side, {
+          planKey: "",
+          discFamily:false, discHikari:false, discAupay:false,
+          talkEnabled:false, talkKind:"short",
+        });
+
         renderAll();
       };
 
@@ -893,6 +902,13 @@ function applyFamilyCountUI(side, carrier, consult){
   const sel  = el(side + "_familyCount");
   if (!wrap || !sel) return;
 
+  const hikOn = (carrier === "uq") && !!getConsult(consult, side, "discHikari", false);
+  if (hikOn){
+    wrap.classList.add("hidden");
+    sel.disabled = true;
+    return;
+  }
+
   const need = needsFamilyCount(carrier, planKey);
 
   // 必要なときだけ表示（家族割OFFでも表示はして、ONで選べる方が操作迷子になりにくい）
@@ -962,6 +978,7 @@ function applyFamilyCountUI(side, carrier, consult){
     const famBtn = el(side + "_family");
     const hikBtn = el(side + "_hikari");
     const apyBtn = el(side + "_aupay");
+    const oyaBtn = el(side + "_oyako");
 
     // UQコミコミは割引なし → pillを隠す（トクトクは表示）
     const uqNoDiscount = (carrier === "uq" && planKey === "komikomi_value");
@@ -971,12 +988,6 @@ function applyFamilyCountUI(side, carrier, consult){
 
       // ahamoは割引なし（従来通り隠す）
       if (carrier === "ahamo"){
-        btn.classList.add("hidden");
-        if (getConsult(consult, side, stateKey, false)) setConsultPatch(side, { [stateKey]: false });
-        return;
-      }
-
-      if (uqNoDiscount){
         btn.classList.add("hidden");
         if (getConsult(consult, side, stateKey, false)) setConsultPatch(side, { [stateKey]: false });
         return;
@@ -992,7 +1003,24 @@ function applyFamilyCountUI(side, carrier, consult){
     applyOne(famBtn, "family", "discFamily");
     applyOne(hikBtn, "hikari", "discHikari");
     applyOne(apyBtn, "aupay",  "discAupay");
+    applyOne(oyaBtn, "oyako",  "discOyako");
+
+    if (carrier === "uq"){
+    const hikOn = !!getConsult(consult, side, "discHikari", false);
+    const famWrap = el(side + "_familyCountWrap");
+
+    if (hikOn){
+      // 表示を消す
+      famBtn && famBtn.classList.add("hidden");
+      famWrap && famWrap.classList.add("hidden");
+
+      // 状態もOFFに寄せる（事故防止）
+      if (getConsult(consult, side, "discFamily", false)){
+        setConsultPatch(side, { discFamily:false });
+      }
+    }
   }
+}
 
   function enforceDefaultsAfterPlan(side, carrier, consult){
       const planKey = getConsult(consult, side, "planKey", "");
@@ -1096,6 +1124,19 @@ function forceKomikomiTalkOn(side){
     const d = window.PRICE_DB.getDiscount ? window.PRICE_DB.getDiscount(carrier, "hikari") : null;
     hikari = d ? d.amount : 0;
   }
+  let oyako_now = 0; let oyako_after = 0;
+
+  const oyakoOn = !!getConsult(consult, side, "discOyako", false);
+  const isTokutoku = (carrier === "uq" && String(planKey||"").startsWith("tokutoku_"));
+  if (oyakoOn && isTokutoku){
+    const oy = window.PRICE_DB.getDiscount ? window.PRICE_DB.getDiscount(carrier, "oyako") : null;
+    if (oyakoOn && isTokutoku && oy){
+      oyako_now = Number(oy.year1 ?? oy.amount ?? 0) || 0;
+      oyako_after = (dataUsage === "lte5")
+        ? (Number(oy.after_le5 ?? 0) || 0)
+        : (Number(oy.after_other ?? 0) || 0);
+    }
+  }
 
   let aupay = 0;
   if (getConsult(consult, side, "discAupay", false) &&
@@ -1111,7 +1152,7 @@ function forceKomikomiTalkOn(side){
   // ===== custom (±) =====
   const custom = Number(getConsult(consult, side, "customDiscountYen", 0) || 0) || 0;
 
-  const total = base + talkYen + mail + family + hikari + aupay + custom;
+  const total = base + talkYen + mail + family + hikari + aupay + oyako_now + custom;
 
   // ===== breakdown lines =====
   const lines = [];
@@ -1134,11 +1175,12 @@ function forceKomikomiTalkOn(side){
 
   if (mail !== 0)     lines.push({ k:"メール", v: mail });
   if (family !== 0)   lines.push({ k:"家族割", v: family });
+  if (oyako_now !== 0) lines.push({ k:"親子割(1年間)", v: oyako_now });
   if (hikari !== 0)   lines.push({ k:"光割", v: hikari });
   if (aupay !== 0)    lines.push({ k:"auPAYカード割", v: aupay });
   if (custom !== 0)   lines.push({ k:"任意調整", v: custom });
 
-  return { total, lines, planKey };
+  return { total, totalAfter: (oyako_after ? (total - oyako_now + oyako_after) : null), lines, planKey };
 }
 
 function renderAll(){
@@ -1293,26 +1335,14 @@ function renderAll(){
   pillSet(el("A_mail"),   !!getConsult(consult,"A","optMailCarry",false));
   pillSet(el("A_family"), !!getConsult(consult,"A","discFamily",false));
   pillSet(el("A_hikari"), !!getConsult(consult,"A","discHikari",false));
+  pillSet(el("A_oyako"),  !!getConsult(consult,"A","discOyako",false));
   pillSet(el("A_aupay"),  !!getConsult(consult,"A","discAupay",false));
 
   pillSet(el("B_mail"),   !!getConsult(consult,"B","optMailCarry",false));
   pillSet(el("B_family"), !!getConsult(consult,"B","discFamily",false));
   pillSet(el("B_hikari"), !!getConsult(consult,"B","discHikari",false));
+  pillSet(el("B_oyako"),  !!getConsult(consult,"B","discOyako",false));
   pillSet(el("B_aupay"),  !!getConsult(consult,"B","discAupay",false));
-
-  const famAon = !!getConsult(consult,"A","discFamily",false);
-  el("A_familyCount")?.classList.toggle("hidden", !famAon);
-  if (famAon && el("A_familyCount")){
-    const cur = Number(getConsult(consult,"A","discFamilyCount",2) || 2) || 2;
-    el("A_familyCount").value = String(cur);
-  }
-
-  const famBon = !!getConsult(consult,"B","discFamily",false);
-  el("B_familyCount")?.classList.toggle("hidden", !famBon);
-  if (famBon && el("B_familyCount")){
-    const cur = Number(getConsult(consult,"B","discFamilyCount",2) || 2) || 2;
-    el("B_familyCount").value = String(cur);
-  }
 
   // 任意調整欄の同期
   if (el("A_customDiscountYen")) el("A_customDiscountYen").value = String(Number(getConsult(consult,"A","customDiscountYen",0) || 0) || 0);
@@ -1328,11 +1358,15 @@ function renderAll(){
   el("brandB") && (el("brandB").textContent = carrierLabel(b));
 
   const rA = calcMonthly(a, form, consult, "A");
+  if (Number.isFinite(rA.totalAfter)){
+    rA.lines = [...(rA.lines||[]), { k:"1年後目安", v: rA.totalAfter }];
+  }
+  el("priceA").textContent = yen(rA.total);
+  renderBreakdown("bdA", rA.lines || []);
   const rB = calcMonthly(b, form, consult, "B");
 
   el("priceA") && (el("priceA").textContent = yen(rA.total));
   renderBreakdown("bdA", rA.lines || []);
-
   el("priceB") && (el("priceB").textContent = yen(rB.total));
   renderBreakdown("bdB", rB.lines || []);
 
@@ -1360,12 +1394,20 @@ function renderAll(){
 
     on("carrierA", "change", ()=>{
       saveConsultPatch({ carrierA: el("carrierA")?.value || "" });
-      setConsultPatch("A", { planKey: "" });
+      setConsultPatch("A", {
+        planKey: "",
+        discFamily:false, discHikari:false, discOyako:false, discAupay:false,
+        talkEnabled:false, talkKind:"short",
+      });
       renderAll();
     });
     on("carrierB", "change", ()=>{
       saveConsultPatch({ carrierB: el("carrierB")?.value || "" });
-      setConsultPatch("B", { planKey: "" });
+      setConsultPatch("B", {
+        planKey: "",
+        discFamily:false, discHikari:false, discOyako:false ,discAupay:false,
+        talkEnabled:false, talkKind:"short",
+      });
       renderAll();
     });
 
@@ -1451,6 +1493,30 @@ function renderAll(){
       toggleDiscountWithUqRule("A", carrier, "hikari");
       renderAll();
     });
+
+    click("A_oyako", () => {
+      const { consult } = loadCtx();
+      const carrier = el("carrierA")?.value || consult.carrierA || "";
+      const planKey = getConsult(consult, "A", "planKey", "");
+      const cur = !!getConsult(consult, "A", "discOyako", false);
+
+      // UQ + 対象プランのみ
+      const ok = window.PRICE_DB?.isDiscountEligible
+      ? window.PRICE_DB.isDiscountEligible(carrier, "oyako", planKey)
+      : false;
+      if (!ok){
+        // 対象外ならOFFに戻す（事故防止）
+        if (cur) setConsultPatch("A", { discOyako:false });
+        renderAll();
+        return;
+      }
+
+      // 家族割と同時ONは事故りやすいのでOFFに寄せる（必要ならここ削る）
+      const famOn = !!getConsult(consult, "A", "discFamily", false);
+      setConsultPatch("A", { discOyako: !cur, discFamily: (!cur ? false : famOn) });
+
+      renderAll();
+    });
     click("A_aupay", () => {
       const { consult } = loadCtx();
       const carrier = el("carrierA")?.value || consult.carrierA || "";
@@ -1468,6 +1534,26 @@ function renderAll(){
       const { consult } = loadCtx();
       const carrier = el("carrierB")?.value || consult.carrierB || "";
       toggleDiscountWithUqRule("B", carrier, "hikari");
+      renderAll();
+    });
+    click("B_oyako", () => {
+      const { consult } = loadCtx();
+      const carrier = el("carrierB")?.value || consult.carrierB || "";
+      const planKey = getConsult(consult, "B", "planKey", "");
+      const cur = !!getConsult(consult, "B", "discOyako", false);
+
+      const ok = window.PRICE_DB?.isDiscountEligible
+      ? window.PRICE_DB.isDiscountEligible(carrier, "oyako", planKey)
+      : false;
+      if (!ok){
+        if (cur) setConsultPatch("B", { discOyako:false });
+        renderAll();
+        return;
+      }
+
+      const famOn = !!getConsult(consult, "B", "discFamily", false);
+      setConsultPatch("B", { discOyako: !cur, discFamily: (!cur ? false : famOn) });
+
       renderAll();
     });
     click("B_aupay", () => {

@@ -134,7 +134,13 @@
     uq: {
       family: { label:"家族セット割（想定）", amount: -550 },
       hikari: { label: "自宅セット割（想定）", amount: -1100 },
-      aupay:  { label:"auPAYカード割", amount: -220 }
+      aupay: { label: "auPAYカード割", amount: -220 },
+      oyako: {
+        label: "親子割",
+        amount: -1650,
+        year1: -1650,
+        after_le5: -1100,
+        after_other: 0 }
     },
 
     // SoftBank
@@ -216,8 +222,10 @@
     if (planKey === "komikomi_value"){
       return false;
     }
-    // ★UQ: 家族割と光割は併用不可 → 光割優先
-    // eligibility自体は true で、後段で排他処理するのがUI的に扱いやすい
+    if (kind === "oyako"){
+      const isTokutoku = String(planKey || "").startsWith("tokutoku_");
+      return isTokutoku;
+      }
   }
 
     // ---- UQ: family & hikari cannot stack (prefer hikari) ----
