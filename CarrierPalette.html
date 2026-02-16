@@ -810,10 +810,13 @@
         saveConsultPatch(side === "A" ? { carrierA:key } : { carrierB:key });
 
         // キャリア切替で状態が残留しないように初期化（A/B共通）
+        const isAhamo = (key === "ahamo");
+
         setConsultPatch(side, {
           planKey: "",
-          discFamily:false, discHikari:false, discAupay:false,
-          talkEnabled:false, talkKind:"short",
+          discFamily:false, discHikari:false, discOyako:false, discAupay:false,
+          talkEnabled: isAhamo ? true : false,
+          talkKind: "short",
         });
 
         renderAll();
@@ -1053,6 +1056,12 @@ function isUqKomikomi(carrier, consult, side){
 
 function forceKomikomiTalkOn(side){
   // コミコミは通話内包（short）前提：必ずON+shortへ
+  setConsultPatch(side, { talkEnabled:true, talkKind:"short" });
+}
+
+function isAhamo(carrier){ return carrier === "ahamo"; }
+
+function forceAhamoTalkOn(side){
   setConsultPatch(side, { talkEnabled:true, talkKind:"short" });
 }
 
@@ -1305,6 +1314,14 @@ function renderAll(){
     }
   }
 
+  if (isAhamo(carrier)){
+    const enabled = !!getConsult(consult, side, "talkEnabled", false);
+    const kind = getConsult(consult, side, "talkKind", "short");
+    if (!enabled || kind !== "short"){
+      forceAhamoTalkOn(side);
+    }
+  }
+
   const enabled = !!getConsult(consult, side, "talkEnabled", false);
   const kind = getConsult(consult, side, "talkKind", "short");
 
@@ -1394,19 +1411,23 @@ function renderAll(){
 
     on("carrierA", "change", ()=>{
       saveConsultPatch({ carrierA: el("carrierA")?.value || "" });
+      const next = el("carrierA")?.value || "";
       setConsultPatch("A", {
         planKey: "",
         discFamily:false, discHikari:false, discOyako:false, discAupay:false,
-        talkEnabled:false, talkKind:"short",
+        talkEnabled: (next === "ahamo") ? true : false,
+        talkKind:"short",
       });
       renderAll();
     });
     on("carrierB", "change", ()=>{
       saveConsultPatch({ carrierB: el("carrierB")?.value || "" });
+      const next = el("carrierB")?.value || "";
       setConsultPatch("B", {
         planKey: "",
-        discFamily:false, discHikari:false, discOyako:false ,discAupay:false,
-        talkEnabled:false, talkKind:"short",
+        discFamily:false, discHikari:false, discOyako:false, discAupay:false,
+        talkEnabled: (next === "ahamo") ? true : false,
+        talkKind:"short",
       });
       renderAll();
     });
