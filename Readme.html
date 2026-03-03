@@ -1,3 +1,6 @@
+<!-- =========================
+     Readme.html
+     ========================= -->
 <!doctype html>
 <html lang="ja">
 <head>
@@ -61,14 +64,13 @@
     color:#555;
     line-height:1.7;
     }
-    /* 小見出しの余白を広めに */
+    
     h2{
     font-size:18px;
-    margin:22px 0 10px;   /* ← 上を大きく、下も少し */
-    padding-top:6px;      /* ← 視覚的に“段落が変わった感” */
+    margin:22px 0 10px;
+    padding-top:6px;
     }
 
-    /* h2直前が divider の場合でも詰まりすぎないように */
     .divider + h2{
     margin-top:24px;
     }
@@ -198,7 +200,7 @@ document.getElementById("backBtn").onclick = () => {
   if (history.length > 1) history.back();
   else window.location.href = "ContractNavigator.html";
 };
-// FAQは1つだけ開く（任意）
+
 document.querySelectorAll(".faq details").forEach(d => {
   d.addEventListener("toggle", () => {
     if (!d.open) return;
