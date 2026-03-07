@@ -197,7 +197,7 @@ header{
   font-weight:1100;
   letter-spacing:.12em;
   color:color-mix(in srgb, #fff 90%, var(--text));
-  background:#2ed400;
+  background:#d46600;
   padding:7px 16px;
   border-radius:999px;
   opacity:0.85;
@@ -580,6 +580,8 @@ details.compact summary{
   <header>
     <div class="title">キャリアパレット</div>
     <div class="sub">料金比較・見積り</div>
+
+    <!-- <div class="trialBadge">⚠ 試験運用中 ⚠</div> -->
 
     <div class="modeSwitch" id="modeToggle" role="button" aria-label="表示モード切替" tabindex="0"
       style="position:absolute; right:16px; top:50%; transform:translateY(-50%);">
@@ -2142,5 +2144,11 @@ function init(){
 }
 init();
   </script>
+
+  <nav class="appSwitch" aria-label="アプリ切替">
+    <a href="ContractNavigator.html" title="契約ナビ">📋</a>
+    <a href="CarrierPalette.html" class="on" title="キャリアパレット">📱</a>
+    <a href="BBNavigator.html" title="BBナビ">🏠</a>
+  </nav>
 </body>
 </html>
